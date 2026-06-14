@@ -30,12 +30,22 @@ Guidance for Claude Code (and humans) working in this repo.
   Google credentials secret.
 - Local dev requires **Node.js** (LTS). Install it, then `npm install` and `npm run dev`.
 
-## RSVP (NOT built yet)
+## RSVP (built)
 
-- RSVP submissions will be stored in **Google Sheets**.
-- Planned approach: a Next.js **API route** (`/api/rsvp`) using a Google **service
-  account** (via `google-spreadsheet` / `googleapis`) so credentials stay server-side.
-- Credentials will live in `.env.local` (git-ignored) and Vercel env vars — never commit them.
+- Route `/rsvp` → themed form (`src/components/RsvpForm.tsx`, a client component using
+  React 19 `useActionState`) → **Server Action** `submitRsvp` (`src/app/rsvp/actions.ts`).
+- Storage: **Google Sheets** via a **service account**, libraries `google-spreadsheet`
+  + `google-auth-library` (`src/lib/googleSheet.ts`). Appends one row per RSVP.
+- Fields collected: name, email, attending (yes/no), guests (1–10), guest names.
+  Plus a hidden honeypot and a server timestamp. Validation is shared in
+  `src/lib/rsvp.ts` (`validateRsvp`, `SHEET_HEADERS`).
+- Env vars (`.env.local`, git-ignored; mirror in Vercel) — **never commit**:
+  `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`, `GOOGLE_SHEET_ID`.
+  See `.env.local.example` and README → "RSVP / Google Sheets setup".
+- Degrades gracefully: with no env vars, the form renders and submit returns a
+  friendly error + logs a hint (build/dev unaffected).
+- To change collected fields: edit `RsvpValues`/`validateRsvp`/`SHEET_HEADERS` in
+  `src/lib/rsvp.ts`, the form, and the row object in `actions.ts`.
 
 ## Theme — "Wildflower summer"
 
@@ -81,9 +91,9 @@ Everything lives on the **single landing page** so far. Sections, top to bottom:
    Local Recommendations
 6. Footer
 
-Nav links: `RSVP` and `FAQ` point at routes (`/rsvp`, `/faq`) that **don't exist
-yet** (they 404 until built — for RSVP → Google Sheets, FAQ later). `Details` and
-`Travel & Stay` are hash links to the on-page `#venue` and `#useful-info` sections.
+Nav links: `RSVP` → `/rsvp` (built). `FAQ` → `/faq` (**doesn't exist yet** — 404
+until built). `Details` and `Travel & Stay` are hash links to the on-page `#venue`
+and `#useful-info` sections.
 
 ### Editing content (no component changes needed)
 

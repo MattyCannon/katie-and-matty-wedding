@@ -100,4 +100,44 @@
   .info-link:hover {
     @apply decoration-botanical-red;
   }
+
+  /* RSVP form fields. */
+  .field-label {
+    @apply mb-2 block font-display uppercase text-ink-soft;
+    letter-spacing: 0.2em;
+    font-weight: 600;
+    font-size: 0.66rem;
+  }
+  .field-input {
+    @apply w-full rounded-md border border-sage/60 bg-ivory/60 px-4 py-3 font-body text-lg text-ink transition-colors duration-200;
+  }
+  .field-input::placeholder {
+    @apply text-ink-soft/60;
+  }
+  .field-input:focus {
+    @apply border-botanical-red outline-none ring-2 ring-botanical-red/20;
+  }
+  .field-input[aria-invalid="true"] {
+    @apply border-botanical-red;
+  }
+  .field-error {
+    @apply mt-1.5 font-body text-sm text-botanical-red;
+  }
+
+  /* Segmented "attending" choice built from radios. */
+  .choice {
+    @apply cursor-pointer rounded-md border border-sage/60 bg-ivory/60 px-4 py-3 text-center font-display uppercase text-ink-soft transition-colors duration-200;
+    letter-spacing: 0.16em;
+    font-size: 0.74rem;
+    font-weight: 600;
+  }
+  .choice:hover {
+    @apply border-botanical-red text-ink;
+  }
+  .choice-input:checked + .choice {
+    @apply border-botanical-red bg-botanical-red text-ivory;
+  }
+  .choice-input:focus-visible + .choice {
+    @apply ring-2 ring-botanical-red/30;
+  }
 }

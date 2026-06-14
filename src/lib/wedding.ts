@@ -21,6 +21,8 @@ export const wedding = {
     label: "2:00 pm",
     words: "Two o'clock in the afternoon",
   },
+  /** RSVP deadline shown on the RSVP page. EDIT as needed. */
+  rsvpBy: "Saturday 1st May 2027",
   venue: "The Hospitium",
   location: {
     area: "Museum Gardens",
