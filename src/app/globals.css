@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ivory text-ink font-body antialiased;
+    /* faint warm vignette so the ivory feels like textured paper */
+    background-image: radial-gradient(
+      120% 90% at 50% 0%,
+      #fdfaf0 0%,
+      #faf6ea 45%,
+      #f6efdd 100%
+    );
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display text-ink;
+  }
+
+  ::selection {
+    @apply bg-buttercup/40;
+  }
+}
+
+@layer components {
+  /* Letter-spaced "small-caps" labels — the Order-of-Service feel. */
+  .label {
+    @apply font-display uppercase text-ink-soft;
+    letter-spacing: 0.28em;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  /* Thin botanical hairline used between detail rows. */
+  .hairline {
+    @apply h-px w-full border-0;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(136, 160, 106, 0.55),
+      transparent
+    );
+  }
+
+  /* Offset for hash-link scrolling so headings clear the top edge. */
+  .section-anchor {
+    scroll-margin-top: 2rem;
+  }
+
+  /* Outlined botanical button (calendar links, directions). */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-sage bg-ivory/70 px-5 py-2.5 font-display uppercase text-ink transition-colors duration-200;
+    letter-spacing: 0.18em;
+    font-weight: 600;
+    font-size: 0.72rem;
+  }
+  .btn:hover {
+    @apply border-botanical-red bg-ivory text-botanical-red;
+  }
+
+  /* Native <details> accordion. */
+  details.acc {
+    @apply border-b border-sage/40;
+  }
+  details.acc > summary {
+    @apply flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-display text-2xl text-ink transition-colors duration-200;
+  }
+  details.acc > summary::-webkit-details-marker {
+    display: none;
+  }
+  details.acc > summary:hover {
+    @apply text-botanical-red;
+  }
+  details.acc[open] > summary {
+    @apply text-botanical-red;
+  }
+  .acc-chevron {
+    @apply shrink-0 text-sage transition-transform duration-200;
+  }
+  details.acc[open] .acc-chevron {
+    transform: rotate(180deg);
+  }
+
+  /* Inline links inside info panels. */
+  .info-link {
+    @apply text-botanical-red underline decoration-sage/50 underline-offset-4 transition-colors duration-200;
+  }
+  .info-link:hover {
+    @apply decoration-botanical-red;
+  }
+}
