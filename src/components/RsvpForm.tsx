@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState } from "react";
 import { submitRsvp } from "@/app/rsvp/actions";
 import { MAX_GUESTS, type RsvpState } from "@/lib/rsvp";
@@ -20,6 +21,13 @@ export default function RsvpForm() {
         <p className="mt-6 font-display text-3xl text-ink sm:text-4xl">With thanks</p>
         <p className="mx-auto mt-3 max-w-sm font-body text-lg text-ink-soft">
           {state.message}
+        </p>
+        <p className="mt-6 font-body text-lg text-ink-soft">
+          While you&apos;re here —{" "}
+          <Link href="/songs" className="info-link">
+            add a song to get us dancing
+          </Link>
+          .
         </p>
       </div>
     );

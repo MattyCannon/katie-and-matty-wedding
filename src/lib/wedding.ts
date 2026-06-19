@@ -66,6 +66,7 @@ export const navLinks = [
   { label: "RSVP", href: "/rsvp" },
   { label: "Details", href: "#venue" },
   { label: "Travel & Stay", href: "#useful-info" },
+  { label: "Songs", href: "/songs" },
   { label: "FAQ", href: "/faq" },
 ] as const;
 

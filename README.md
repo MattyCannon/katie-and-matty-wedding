@@ -56,6 +56,34 @@ just return a friendly error and log a hint — so set it up when you're ready.
 
 Columns written: `Timestamp · Name · Email · Attending · Guests · Guest names`.
 
+## Spotify song requests setup
+
+The `/songs` page lets guests search Spotify and add a track to a central
+playlist. Like RSVP, it degrades gracefully — without config the page shows a
+tidy "opening soon" state. Only **you** (the playlist owner) authorize, once;
+guests never log into Spotify.
+
+1. **Create a Spotify app** at <https://developer.spotify.com/dashboard> → note
+   the **Client ID** and **Client secret**. In the app settings, add the redirect
+   URI exactly: `http://127.0.0.1:8888/callback`.
+2. **Create the playlist** (public or private, owned by you). Copy its id from the
+   share link: `https://open.spotify.com/playlist/`**`THIS_BIT`**`?…`.
+3. **Get a refresh token.** Put `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` in
+   `.env.local`, then run:
+   ```bash
+   node scripts/spotify-auth.mjs
+   ```
+   Open the printed URL, approve, and copy the refresh token it prints.
+4. **Finish `.env.local`** with all four:
+   `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`,
+   `SPOTIFY_PLAYLIST_ID`.
+5. **Vercel.** Add the same four under Project → Settings → Environment Variables,
+   then redeploy.
+
+Notes: duplicate tracks are skipped automatically. Spotify no longer provides
+30-second preview clips for new apps, so the picker shows album art + title +
+artist (no in-browser preview).
+
 ## Deploying (Vercel)
 
 1. Create a GitHub repo and push this folder to it.

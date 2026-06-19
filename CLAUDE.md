@@ -47,6 +47,19 @@ Guidance for Claude Code (and humans) working in this repo.
 - To change collected fields: edit `RsvpValues`/`validateRsvp`/`SHEET_HEADERS` in
   `src/lib/rsvp.ts`, the form, and the row object in `actions.ts`.
 
+## Spotify song requests (built — needs creds to go live)
+
+- Route `/songs` → `src/components/SongRequest.tsx` (client: debounced search →
+  results → "Add"). Calls route handlers `src/app/api/spotify/{search,add}/route.ts`.
+- Server client: `src/lib/spotify.ts`. Uses the **owner's refresh token** for both
+  search and add (guests never authorize). Adds skip **duplicates**. Honeypot on add.
+- Env vars (`.env.local`, git-ignored; mirror in Vercel) — **never commit**:
+  `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`,
+  `SPOTIFY_PLAYLIST_ID`. Get the refresh token via `scripts/spotify-auth.mjs`.
+- Degrades gracefully: with no env vars the page shows an "opening soon" state.
+- Caveat: Spotify dropped 30s preview clips for new apps — no in-browser previews.
+- Setup steps: README → "Spotify song requests setup".
+
 ## Theme — "Wildflower summer"
 
 Matches the couple's paper invitation. Refined and romantic — **never kitsch**.
@@ -91,9 +104,12 @@ Everything lives on the **single landing page** so far. Sections, top to bottom:
    Local Recommendations
 6. Footer
 
-Nav links: `RSVP` → `/rsvp` (built). `FAQ` → `/faq` (**doesn't exist yet** — 404
-until built). `Details` and `Travel & Stay` are hash links to the on-page `#venue`
-and `#useful-info` sections.
+Other routes: `/rsvp` (built), `/songs` ("Request a Song", built). The RSVP
+success screen also links to `/songs`.
+
+Nav links: `RSVP` → `/rsvp`, `Songs` → `/songs` (both built). `FAQ` → `/faq`
+(**doesn't exist yet** — 404 until built). `Details` and `Travel & Stay` are hash
+links to the on-page `#venue` and `#useful-info` sections.
 
 ### Editing content (no component changes needed)
 
@@ -114,6 +130,9 @@ src/
 │   ├── layout.tsx      # fonts, <html>, metadata
 │   ├── page.tsx        # landing page composition + corner botanicals
 │   └── globals.css     # Tailwind layers, base styles, .label/.btn/.acc utilities
+├── app/api/spotify/    # search + add route handlers
+├── app/rsvp/           # RSVP page + server action
+├── app/songs/          # "Request a Song" page
 ├── components/
 │   ├── NavBar.tsx
 │   ├── Hero.tsx
@@ -121,13 +140,21 @@ src/
 │   ├── AddToCalendar.tsx    # Google/Outlook/.ics buttons
 │   ├── VenueMap.tsx         # Google Maps embed + directions
 │   ├── UsefulInfo.tsx       # <details> accordion
+│   ├── RsvpForm.tsx         # RSVP client form
+│   ├── SongRequest.tsx      # Spotify search/add client component
 │   ├── Footer.tsx
 │   └── botanical/
 │       ├── Botanicals.tsx   # flower/leaf primitives + CornerCluster
 │       └── Divider.tsx      # floral sprig divider
 └── lib/
-    ├── wedding.ts      # event details + calendar/map link builders
-    └── usefulInfo.ts   # EDIT-ME accordion content (travel/stay/recommendations)
+    ├── wedding.ts      # event details + calendar/map link builders + navLinks
+    ├── usefulInfo.ts   # EDIT-ME accordion content (travel/stay/recommendations)
+    ├── rsvp.ts         # RSVP validation/types/columns
+    ├── googleSheet.ts  # RSVP Sheets client
+    └── spotify.ts      # Spotify search/add client
+
+scripts/
+└── spotify-auth.mjs    # one-time: obtain the Spotify refresh token
 
 public/
 └── katie-and-matty-wedding.ics   # downloadable calendar file
