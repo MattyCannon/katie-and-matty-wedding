@@ -45,9 +45,17 @@ export async function appendRsvpRow(row: RsvpRow): Promise<void> {
 
   const sheet = doc.sheetsByIndex[0];
 
-  // Seed the header row on first use so columns stay aligned.
-  await sheet.loadHeaderRow().catch(() => undefined);
-  if (!sheet.headerValues || sheet.headerValues.length === 0) {
+  // Seed the header row on first use so columns stay aligned. On an empty sheet
+  // loadHeaderRow() throws, and the `headerValues` getter also throws until it's
+  // loaded — so treat any failure as "no headers yet" and create them.
+  let hasHeaders = false;
+  try {
+    await sheet.loadHeaderRow();
+    hasHeaders = Array.isArray(sheet.headerValues) && sheet.headerValues.length > 0;
+  } catch {
+    hasHeaders = false;
+  }
+  if (!hasHeaders) {
     await sheet.setHeaderRow([...SHEET_HEADERS]);
   }
 
