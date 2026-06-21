@@ -4,7 +4,7 @@ export default function Hero() {
   return (
     <section className="relative px-6 pt-8 text-center sm:pt-14">
       <p className="label text-[0.7rem] text-botanical-red">
-        Together with their families
+        Together with their friends &amp; family
       </p>
 
       <h1 className="mx-auto mt-8 max-w-3xl font-display leading-[1.02] text-ink">

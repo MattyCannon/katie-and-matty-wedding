@@ -76,29 +76,14 @@ export const usefulInfo: InfoPanel[] = [
         heading: "Hotels",
         items: [
           {
+            name: "The Milner York",
+            detail: "Where Katie & Matty are staying — by the station",
+            href: "https://www.themilneryork.com/",
+          },
+          {
             name: "The Grand, York",
             detail: "5-star, near the station (~10 min walk)",
             href: "https://www.thegrandyork.co.uk/",
-          },
-          {
-            name: "Dean Court Hotel",
-            detail: "Beside York Minster, very central",
-            href: "https://www.deancourt-york.co.uk/",
-          },
-          {
-            name: "Hotel du Vin York",
-            detail: "Boutique, on The Mount",
-            href: "https://www.hotelduvin.com/locations/york/",
-          },
-        ],
-      },
-      {
-        heading: "B&Bs & guesthouses",
-        items: [
-          {
-            name: "Bootham guesthouses",
-            detail: "Several B&Bs along Bootham, a short walk from the gardens",
-            href: "https://www.visityork.org/accommodation",
           },
         ],
       },
