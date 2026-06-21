@@ -26,9 +26,8 @@ export default function RsvpPage() {
               <p className="label text-[0.72rem] text-botanical-red">Répondez s&apos;il vous plaît</p>
               <h1 className="mt-4 font-display text-5xl text-ink sm:text-6xl">RSVP</h1>
               <p className="mx-auto mt-4 max-w-sm font-body text-lg text-ink-soft">
-                We&apos;d love to know if you can celebrate with us on{" "}
-                {wedding.date.full}. Kindly respond by{" "}
-                <span className="text-ink">{wedding.rsvpBy}</span>.
+                Find your name to let us know who can join us on {wedding.date.full}.
+                Kindly respond by <span className="text-ink">{wedding.rsvpBy}</span>.
               </p>
               <Divider className="mx-auto mt-6 h-7 w-44" />
             </div>

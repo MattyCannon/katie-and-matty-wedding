@@ -34,13 +34,20 @@ npm run lint    # eslint
 
 ## RSVP / Google Sheets setup
 
-The `/rsvp` form posts to a Next.js Server Action that appends a row to a Google
-Sheet via a **service account**. The page works without this configured — submits
-just return a friendly error and log a hint — so set it up when you're ready.
+`/rsvp` is a **guest-list lookup**: guests search for their name and RSVP for
+their whole party (per person). It reads from / writes to a Google Sheet via a
+**service account**, and degrades gracefully when unconfigured ("RSVPs open soon").
 
-1. **Create the Sheet.** New Google Sheet; copy its id from the URL
-   (`https://docs.google.com/spreadsheets/d/`**`THIS_BIT`**`/edit`). The header
-   row is created automatically on the first RSVP.
+**Guest list = the second tab** of the Sheet, with columns `Group_ID`, `Name`,
+`Ceremony_Guest` (Yes/No), `Food_Order`. A party is all rows sharing a `Group_ID`.
+Responses are **written back onto that same tab** in columns added automatically on
+the first response: `RSVP_Status`, `RSVP_Email`, `RSVP_Timestamp`. Keep the guest
+list up to date there (extend rows as needed). It's lookup-only — guests not on the
+list are asked to get in touch.
+
+1. **Create the Sheet** (or use the existing one). Copy its id from the URL
+   (`https://docs.google.com/spreadsheets/d/`**`THIS_BIT`**`/edit`). Put the guest
+   list on the **second tab**.
 2. **Google Cloud project.** At <https://console.cloud.google.com> create/select a
    project and enable the **Google Sheets API**.
 3. **Service account.** APIs & Services → Credentials → Create credentials →
@@ -53,8 +60,6 @@ just return a friendly error and log a hint — so set it up when you're ready.
    - `GOOGLE_SHEET_ID` — from step 1
 6. **Vercel.** Add the same three under Project → Settings → Environment Variables,
    then redeploy.
-
-Columns written: `Timestamp · Name · Email · Attending · Guests · Guest names`.
 
 ## Spotify song requests setup
 

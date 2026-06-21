@@ -30,22 +30,32 @@ Guidance for Claude Code (and humans) working in this repo.
   Google credentials secret.
 - Local dev requires **Node.js** (LTS). Install it, then `npm install` and `npm run dev`.
 
-## RSVP (built)
+## RSVP — guest-list lookup (built, live)
 
-- Route `/rsvp` → themed form (`src/components/RsvpForm.tsx`, a client component using
-  React 19 `useActionState`) → **Server Action** `submitRsvp` (`src/app/rsvp/actions.ts`).
-- Storage: **Google Sheets** via a **service account**, libraries `google-spreadsheet`
-  + `google-auth-library` (`src/lib/googleSheet.ts`). Appends one row per RSVP.
-- Fields collected: name, email, attending (yes/no), guests (1–10), guest names.
-  Plus a hidden honeypot and a server timestamp. Validation is shared in
-  `src/lib/rsvp.ts` (`validateRsvp`, `SHEET_HEADERS`).
-- Env vars (`.env.local`, git-ignored; mirror in Vercel) — **never commit**:
-  `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`, `GOOGLE_SHEET_ID`.
-  See `.env.local.example` and README → "RSVP / Google Sheets setup".
-- Degrades gracefully: with no env vars, the form renders and submit returns a
-  friendly error + logs a hint (build/dev unaffected).
-- To change collected fields: edit `RsvpValues`/`validateRsvp`/`SHEET_HEADERS` in
-  `src/lib/rsvp.ts`, the form, and the row object in `actions.ts`.
+Guests find their name, then RSVP for their whole party (per person). It's
+**lookup-only** — no free-text form; people not on the list are asked to get in touch.
+
+- **Data model**: the guest list is the **second tab** of the RSVP sheet
+  (`sheetsByIndex[1]`). Columns: `Group_ID`, `Name`, `Ceremony_Guest` (Yes/No),
+  `Food_Order` (unused for now). A "party" = all rows sharing a `Group_ID`.
+- **Responses write back onto that same tab**, in columns created on first response:
+  `RSVP_Status` (Attending/Declined), `RSVP_Email`, `RSVP_Timestamp`. (The old
+  Sheet1 per-submission flow is gone; Sheet1 is no longer written to.)
+- **Flow**: `/rsvp` → `src/components/RsvpForm.tsx` (client, 3 stages: search → group
+  → done) → route handlers:
+  - `GET /api/guests/search?q=` → matching names (min 2 chars, capped, full list
+    never sent to the client; 60s in-memory cache).
+  - `GET /api/guests/group?name=` → the party (members + ceremony flag).
+  - `POST /api/rsvp/group` → re-resolves the group server-side from the anchor name
+    and writes each member's status. Honeypot included.
+- Sheet logic: `src/lib/guests.ts`; shared types: `src/lib/guestTypes.ts`; auth/doc:
+  `src/lib/googleSheet.ts` (`getDoc()`).
+- Env vars (same as before): `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`,
+  `GOOGLE_SHEET_ID`. Degrades gracefully (shows "RSVPs open soon" with no creds).
+- Note: names are matched trimmed + case-insensitive (the sheet has some trailing
+  spaces). Duplicate names across groups resolve to the first match.
+- UI assumption to confirm: `Ceremony_Guest` shows as "Ceremony & evening" vs
+  "Evening" — adjust the wording in `RsvpForm.tsx` if that's not the intended meaning.
 
 ## Spotify song requests (built — needs creds to go live)
 
@@ -94,22 +104,21 @@ reference only — it's a template printed with other names).
 
 ## Site map / roadmap
 
-Everything lives on the **single landing page** so far. Sections, top to bottom:
+Landing-page sections, top to bottom:
 
-1. Hero — names + date/venue
-2. Order of Service — key details
-3. Save the Date — **Add to Calendar** (Google / Outlook links + downloadable `.ics`)
-4. The Venue (`#venue`) — **Google Maps embed** (no API key) + "Get directions"
-5. Useful Information (`#useful-info`) — **accordion**: Travel, Where to Stay,
+1. Hero — names + date/venue (eyebrow: "Together with their friends & family")
+2. Save the Date — **Add to Calendar** (Google / Outlook links + downloadable `.ics`)
+3. The Venue (`#venue`) — **Google Maps embed** (no API key) + "Get directions"
+4. Useful Information (`#useful-info`) — **accordion**: Travel, Where to Stay,
    Local Recommendations
+5. RSVP call-to-action button → `/rsvp`
 6. Footer
 
-Other routes: `/rsvp` (built), `/songs` ("Request a Song", built). The RSVP
-success screen also links to `/songs`.
+Other routes: `/rsvp` (guest-list lookup) and `/songs` ("Request a Song"). `/songs`
+is reachable only from the RSVP success screen (deliberately not in the nav).
 
-Nav links: `RSVP` → `/rsvp`, `Songs` → `/songs` (both built). `FAQ` → `/faq`
-(**doesn't exist yet** — 404 until built). `Details` and `Travel & Stay` are hash
-links to the on-page `#venue` and `#useful-info` sections.
+Nav links: `RSVP` → `/rsvp`, `Details` → `#venue`, `Travel & Stay` → `#useful-info`.
+(Songs and FAQ were removed from the nav.)
 
 ### Editing content (no component changes needed)
 
@@ -130,8 +139,10 @@ src/
 │   ├── layout.tsx      # fonts, <html>, metadata
 │   ├── page.tsx        # landing page composition + corner botanicals
 │   └── globals.css     # Tailwind layers, base styles, .label/.btn/.acc utilities
-├── app/api/spotify/    # search + add route handlers
-├── app/rsvp/           # RSVP page + server action
+├── app/api/spotify/    # song search + add route handlers
+├── app/api/guests/     # guest-list search + group resolve
+├── app/api/rsvp/group/ # group RSVP submit (writes back to Sheet2)
+├── app/rsvp/           # RSVP page (guest-list lookup)
 ├── app/songs/          # "Request a Song" page
 ├── components/
 │   ├── NavBar.tsx
@@ -140,7 +151,7 @@ src/
 │   ├── AddToCalendar.tsx    # Google/Outlook/.ics buttons
 │   ├── VenueMap.tsx         # Google Maps embed + directions
 │   ├── UsefulInfo.tsx       # <details> accordion
-│   ├── RsvpForm.tsx         # RSVP client form
+│   ├── RsvpForm.tsx         # RSVP guest-lookup client form (search → group → done)
 │   ├── SongRequest.tsx      # Spotify search/add client component
 │   ├── Footer.tsx
 │   └── botanical/
@@ -149,8 +160,9 @@ src/
 └── lib/
     ├── wedding.ts      # event details + calendar/map link builders + navLinks
     ├── usefulInfo.ts   # EDIT-ME accordion content (travel/stay/recommendations)
-    ├── rsvp.ts         # RSVP validation/types/columns
-    ├── googleSheet.ts  # RSVP Sheets client
+    ├── guests.ts       # guest-list read/search/resolve + write-back (Sheet2)
+    ├── guestTypes.ts   # shared (client-safe) RSVP types
+    ├── googleSheet.ts  # authed Google Sheets doc (getDoc)
     └── spotify.ts      # Spotify search/add client
 
 scripts/
