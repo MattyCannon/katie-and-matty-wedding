@@ -104,7 +104,7 @@ export const usefulInfo: InfoPanel[] = [
           {
             name: "The Shambles",
             detail: "York's famous medieval street",
-            href: "https://www.visityork.org/things-to-do/the-shambles",
+            href: "https://visityork.org/business-directory/category/shambles",
           },
           {
             name: "Bettys Café Tea Rooms",
@@ -114,7 +114,7 @@ export const usefulInfo: InfoPanel[] = [
           {
             name: "York City Walls",
             detail: "A scenic walk around the historic walls",
-            href: "https://www.visityork.org/things-to-do/york-city-walls",
+            href: "https://visityork.org/business-directory/yorks-city-walls",
           },
         ],
       },

@@ -20,6 +20,7 @@ const C = {
   sage: "#88A06A",
   forest: "#46603F",
   ink: "#2A303C",
+  white: "#FBF8F0",
 } as const;
 
 /* ---- flower & foliage primitives (centred on the origin) ---------------- */
@@ -192,6 +193,40 @@ function Leaf({ len = 26, w = 9 }: { len?: number; w?: number }) {
   );
 }
 
+/** A simple wild oxeye daisy — white petals, sunny yellow eye. */
+function Daisy({ r = 13 }: { r?: number }) {
+  const petals = 10;
+  return (
+    <g>
+      {Array.from({ length: petals }).map((_, i) => (
+        <path
+          key={i}
+          transform={`rotate(${(360 / petals) * i})`}
+          d={`M0 0 C ${-r * 0.24} ${-r * 0.5}, ${-r * 0.16} ${-r}, 0 ${-r} C ${r * 0.16} ${-r}, ${r * 0.24} ${-r * 0.5}, 0 0 Z`}
+          fill={C.white}
+          stroke={C.forest}
+          strokeWidth={0.4}
+          strokeLinejoin="round"
+        />
+      ))}
+      <circle r={r * 0.3} fill={C.yellow} stroke={C.yellowDeep} strokeWidth={0.5} />
+    </g>
+  );
+}
+
+/** A slender curved blade of meadow grass. */
+function GrassBlade({ h = 40, lean = 6 }: { h?: number; lean?: number }) {
+  return (
+    <path
+      d={`M0 0 Q ${lean * 0.6} ${-h * 0.55} ${lean} ${-h}`}
+      stroke={C.sage}
+      strokeWidth={1.1}
+      strokeLinecap="round"
+      fill="none"
+    />
+  );
+}
+
 function Bud({ color = C.red }: { color?: string }) {
   return (
     <g>
@@ -221,15 +256,31 @@ export function CornerCluster({ className = "" }: { className?: string }) {
       focusable="false"
       role="presentation"
     >
-      {/* stems first, so flowers sit on top */}
+      {/* grass blades first — a low, tangled meadow base along the edges */}
+      <g transform="translate(6 356)"><GrassBlade h={46} lean={8} /></g>
+      <g transform="translate(16 358)"><GrassBlade h={62} lean={-6} /></g>
+      <g transform="translate(26 356)"><GrassBlade h={38} lean={14} /></g>
+      <g transform="translate(4 300)"><GrassBlade h={40} lean={-10} /></g>
+      <g transform="translate(14 250)"><GrassBlade h={34} lean={9} /></g>
+      <g transform="translate(6 190)"><GrassBlade h={30} lean={-7} /></g>
+      <g transform="translate(356 4) rotate(90)"><GrassBlade h={50} lean={9} /></g>
+      <g transform="translate(300 4) rotate(94)"><GrassBlade h={36} lean={-8} /></g>
+      <g transform="translate(250 4) rotate(88)"><GrassBlade h={30} lean={6} /></g>
+
+      {/* stems — a denser, more tangled network than a single composed spray */}
       <Stem d="M4 70 Q 60 52 110 70" />
       <Stem d="M64 4 Q 92 70 84 150" />
       <Stem d="M8 12 Q 96 80 150 150" />
       <Stem d="M128 26 Q 188 30 244 16" />
       <Stem d="M26 150 Q 14 240 34 330" />
       <Stem d="M150 150 Q 120 250 60 320" />
+      <Stem d="M4 110 Q 40 130 20 190" />
+      <Stem d="M180 60 Q 230 90 210 150" />
+      <Stem d="M40 210 Q 90 220 110 270" />
+      <Stem d="M100 300 Q 70 340 90 358" />
+      <Stem d="M200 20 Q 250 50 270 100" />
 
-      {/* foliage */}
+      {/* foliage, denser and overlapping */}
       <g transform="translate(48 64) rotate(-58)"><Leaf len={32} w={11} /></g>
       <g transform="translate(74 44) rotate(28)"><Leaf len={26} w={9} /></g>
       <g transform="translate(120 110) rotate(40)"><Leaf len={34} w={12} /></g>
@@ -237,26 +288,42 @@ export function CornerCluster({ className = "" }: { className?: string }) {
       <g transform="translate(22 240) rotate(-16)"><Leaf len={32} w={11} /></g>
       <g transform="translate(96 250) rotate(20)"><Leaf len={28} w={10} /></g>
       <g transform="translate(58 300) rotate(-30)"><Leaf len={26} w={9} /></g>
+      <g transform="translate(18 160) rotate(-44)"><Leaf len={22} w={8} /></g>
+      <g transform="translate(200 70) rotate(50)"><Leaf len={24} w={9} /></g>
+      <g transform="translate(230 130) rotate(-20)"><Leaf len={26} w={9} /></g>
+      <g transform="translate(70 340) rotate(12)"><Leaf len={20} w={7} /></g>
 
       {/* buds */}
       <g transform="translate(244 14) rotate(70)"><Bud color={C.red} /></g>
       <g transform="translate(150 60) rotate(46)"><Bud color={C.pink} /></g>
+      <g transform="translate(258 110) rotate(-30)"><Bud color={C.pink} /></g>
+      <g transform="translate(46 250) rotate(16)"><Bud color={C.red} /></g>
 
-      {/* feathery pink spray */}
+      {/* feathery pink sprays */}
       <g transform="translate(40 80) rotate(-22)"><Feather h={50} /></g>
       <g transform="translate(36 300) rotate(8)"><Feather h={40} /></g>
+      <g transform="translate(210 40) rotate(30)"><Feather h={34} /></g>
 
-      {/* flowers — the red dahlia anchors the spray */}
+      {/* flowers — layered thickly, like a real wildflower meadow rather than a tidy posy */}
       <g transform="translate(150 150) rotate(4)"><Dahlia r={22} /></g>
       <g transform="translate(60 320)"><Dahlia r={15} /></g>
       <g transform="translate(96 64)"><ForgetMeNotCluster /></g>
       <g transform="translate(36 200)"><ForgetMeNotCluster /></g>
+      <g transform="translate(230 60)"><ForgetMeNotCluster /></g>
       <g transform="translate(110 70) rotate(-8)"><Buttercup r={13} /></g>
       <g transform="translate(214 18)"><Buttercup r={11} /></g>
       <g transform="translate(84 150)"><Blossom r={12} /></g>
       <g transform="translate(44 44)"><Blossom r={10} color={C.pinkPale} /></g>
       <g transform="translate(244 90)"><Cornflower r={13} /></g>
       <g transform="translate(120 230)"><Buttercup r={9} /></g>
+      <g transform="translate(20 100)"><Daisy r={12} /></g>
+      <g transform="translate(140 40)"><Daisy r={10} /></g>
+      <g transform="translate(260 150) rotate(-10)"><Daisy r={13} /></g>
+      <g transform="translate(90 200) rotate(8)"><Daisy r={9} /></g>
+      <g transform="translate(50 270)"><Cornflower r={10} /></g>
+      <g transform="translate(180 110) rotate(12)"><Buttercup r={8} /></g>
+      <g transform="translate(10 330)"><Daisy r={11} /></g>
+      <g transform="translate(200 180) rotate(-16)"><Blossom r={9} color={C.pinkPale} /></g>
     </svg>
   );
 }
