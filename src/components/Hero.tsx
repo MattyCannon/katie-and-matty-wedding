@@ -3,7 +3,7 @@ import { wedding } from "@/lib/wedding";
 export default function Hero() {
   return (
     <section className="relative px-6 pt-8 text-center sm:pt-14">
-      <p className="label text-[0.7rem] text-botanical-red">
+      <p className="label hidden text-[0.7rem] text-botanical-red lg:block">
         Together with their friends &amp; family
       </p>
 
