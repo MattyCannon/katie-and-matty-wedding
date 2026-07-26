@@ -6,9 +6,19 @@
  * name a clickable link; omit `href` for plain text. `detail` is the small
  * grey note shown after the name.
  *
- * Links below are sensible starting points for York — swap them for whatever
+ * A panel can also carry a `mapLink` — one Google Maps link plotting several
+ * places on a single map (see "Local Recommendations" below, where the places
+ * are listed once in `RECOMMENDATION_PLACES` and both the on-page list and the
+ * map link are built from them, so they can't drift apart).
+ *
+ * Links point at Google Maps rather than at venue websites — `placeMapHref()`
+ * for a single place, `multiStopMapHref()` for several on one map. Both are in
+ * `src/lib/wedding.ts` and need no API key.
+ *
+ * Content below is a sensible starting point for York — swap it for whatever
  * you'd like to recommend. Nothing else in the app needs changing.
  */
+import { multiStopMapHref, placeMapHref } from "@/lib/wedding";
 
 export type InfoItem = {
   name: string;
@@ -26,7 +36,37 @@ export type InfoPanel = {
   title: string;
   intro?: string;
   groups: InfoGroup[];
+  /** Optional single "see them all on a map" link, shown below the panel's items. */
+  mapLink?: { label: string; href: string };
 };
+
+/**
+ * EDIT ME — the recommendations, in the order they should appear on the map
+ * route. `mapQuery` is what gets sent to Google Maps (keep ", York" so it
+ * geocodes to the right place); `name`/`detail` are what guests read.
+ */
+const RECOMMENDATION_PLACES = [
+  {
+    name: "York Minster",
+    detail: "The breathtaking cathedral at the heart of the city",
+    mapQuery: "York Minster, York",
+  },
+  {
+    name: "The Shambles",
+    detail: "York's famous medieval street",
+    mapQuery: "The Shambles, York",
+  },
+  {
+    name: "Bettys Café Tea Rooms",
+    detail: "A York institution for afternoon tea",
+    mapQuery: "Bettys Café Tea Rooms, St Helen's Square, York",
+  },
+  {
+    name: "York City Walls",
+    detail: "A scenic walk around the historic walls",
+    mapQuery: "York City Walls, York",
+  },
+] as const;
 
 export const usefulInfo: InfoPanel[] = [
   {
@@ -41,7 +81,7 @@ export const usefulInfo: InfoPanel[] = [
           {
             name: "York Railway Station",
             detail: "~10–15 min walk to the Museum Gardens; direct trains from London, Edinburgh, Manchester & Leeds",
-            href: "https://www.nationalrail.co.uk/stations/york/",
+            href: placeMapHref("York Railway Station, York"),
           },
         ],
       },
@@ -51,17 +91,18 @@ export const usefulInfo: InfoPanel[] = [
           {
             name: "Marygate Car Park",
             detail: "Closest to the Museum Gardens (a few minutes' walk)",
-            href: "https://www.york.gov.uk/parking",
+            href: placeMapHref("Marygate Car Park, Marygate, York"),
           },
           {
             name: "Bootham Row Car Park",
             detail: "Short walk via Bootham / St Leonard's Place",
-            href: "https://www.york.gov.uk/parking",
+            href: placeMapHref("Bootham Row Car Park, York"),
           },
           {
             name: "Park & Ride",
             detail: "Several routes into the city centre — handy on busy weekends",
-            href: "https://www.itravelyork.info/park-and-ride",
+            // Broad query on purpose: shows all of York's Park & Ride sites at once.
+            href: placeMapHref("Park and Ride, York"),
           },
         ],
       },
@@ -95,29 +136,13 @@ export const usefulInfo: InfoPanel[] = [
     intro: "If you're making a weekend of it, a few of our favourite things to do in York.",
     groups: [
       {
-        items: [
-          {
-            name: "York Minster",
-            detail: "The breathtaking cathedral at the heart of the city",
-            href: "https://yorkminster.org/",
-          },
-          {
-            name: "The Shambles",
-            detail: "York's famous medieval street",
-            href: "https://visityork.org/business-directory/category/shambles",
-          },
-          {
-            name: "Bettys Café Tea Rooms",
-            detail: "A York institution for afternoon tea",
-            href: "https://www.bettys.co.uk/cafe-tea-rooms/our-locations/bettys-york",
-          },
-          {
-            name: "York City Walls",
-            detail: "A scenic walk around the historic walls",
-            href: "https://visityork.org/business-directory/yorks-city-walls",
-          },
-        ],
+        // Plain text — no individual links. The single map link below covers them all.
+        items: RECOMMENDATION_PLACES.map(({ name, detail }) => ({ name, detail })),
       },
     ],
+    mapLink: {
+      label: "See them all on Google Maps",
+      href: multiStopMapHref(RECOMMENDATION_PLACES.map((p) => p.mapQuery)),
+    },
   },
 ];

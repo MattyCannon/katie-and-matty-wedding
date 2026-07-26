@@ -64,6 +64,19 @@ export default function UsefulInfo() {
                   </ul>
                 </div>
               ))}
+
+              {panel.mapLink && (
+                <div className="mt-5">
+                  <a
+                    className="btn"
+                    href={panel.mapLink.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {panel.mapLink.label}
+                  </a>
+                </div>
+              )}
             </div>
           </details>
         ))}

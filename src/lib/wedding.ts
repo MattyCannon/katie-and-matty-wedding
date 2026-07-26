@@ -63,6 +63,42 @@ export const maps = {
   directionsHref: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(wedding.address.full)}`,
 } as const;
 
+/**
+ * A Google Maps link for a single place. No API key needed. Make the query
+ * specific enough to geocode (include the city); a broader query like
+ * "Park and Ride, York" deliberately returns several pins.
+ */
+export function placeMapHref(query: string): string {
+  const params = new URLSearchParams({ api: "1", query });
+  return `https://www.google.com/maps/search/?${params.toString()}`;
+}
+
+/**
+ * One Google Maps link plotting several places at once, as a walking route
+ * through them (first = start, last = end, the rest become waypoints).
+ *
+ * Google Maps has no official URL for "just drop pins on these N places", so a
+ * route is the reliable way to get them all onto a single map. No API key needed.
+ * Pass at least two places; each should be specific enough to geocode (include
+ * the city).
+ */
+export function multiStopMapHref(places: readonly string[]): string {
+  const stops = places.filter(Boolean);
+  const origin = stops[0] ?? "";
+  const destination = stops.length > 1 ? stops[stops.length - 1] : origin;
+  const waypoints = stops.slice(1, -1);
+
+  const params = new URLSearchParams({
+    api: "1",
+    origin,
+    destination,
+    travelmode: "walking",
+  });
+  if (waypoints.length > 0) params.set("waypoints", waypoints.join("|"));
+
+  return `https://www.google.com/maps/dir/?${params.toString()}`;
+}
+
 /** Builds the Add-to-Calendar deep-links from the details above. */
 export const calendarLinks = {
   google: (() => {
