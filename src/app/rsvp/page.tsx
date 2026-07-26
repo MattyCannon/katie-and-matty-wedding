@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import RsvpForm from "@/components/RsvpForm";
-import { CornerCluster } from "@/components/botanical/Botanicals";
+import { WildflowerCorner } from "@/components/botanical/WildflowerCorner";
 import { Divider } from "@/components/botanical/Divider";
 import { wedding } from "@/lib/wedding";
 
@@ -14,12 +13,16 @@ export const metadata: Metadata = {
 export default function RsvpPage() {
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <CornerCluster className="pointer-events-none absolute left-0 top-0 z-0 w-32 opacity-95 sm:w-44 md:w-56" />
-      <CornerCluster className="pointer-events-none absolute right-0 top-0 z-0 w-32 -scale-x-100 opacity-95 sm:w-44 md:w-56" />
+      <WildflowerCorner
+        stem="flax"
+        className="pointer-events-none absolute left-0 top-0 z-0 w-16 opacity-90 sm:w-24 md:w-32"
+      />
+      <WildflowerCorner
+        stem="sprig"
+        className="pointer-events-none absolute right-0 top-0 z-0 w-16 -scale-x-100 opacity-90 sm:w-24 md:w-32"
+      />
 
       <div className="relative z-10 flex min-h-screen flex-col">
-        <NavBar />
-
         <main className="flex-1 px-6 py-8">
           <div className="mx-auto max-w-xl">
             <div className="text-center">
@@ -27,7 +30,6 @@ export default function RsvpPage() {
               <h1 className="mt-4 font-display text-5xl text-ink sm:text-6xl">RSVP</h1>
               <p className="mx-auto mt-4 max-w-sm font-body text-lg text-ink-soft">
                 Find your name to let us know who can join us on {wedding.date.full}.
-                Kindly respond by <span className="text-ink">{wedding.rsvpBy}</span>.
               </p>
               <Divider className="mx-auto mt-6 h-7 w-44" />
             </div>

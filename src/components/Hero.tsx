@@ -1,8 +1,9 @@
 import { wedding } from "@/lib/wedding";
+import AddToCalendar from "@/components/AddToCalendar";
 
 export default function Hero() {
   return (
-    <section className="relative px-6 pt-8 text-center sm:pt-14">
+    <section className="relative flex min-h-dvh snap-start flex-col items-center justify-start px-6 pb-16 pt-12 text-center sm:pt-16">
       <p className="label hidden text-[0.7rem] text-botanical-red lg:block">
         Together with their friends &amp; family
       </p>
@@ -37,6 +38,9 @@ export default function Hero() {
           {wedding.venue}, {wedding.location.city}
         </span>
       </div>
+
+      {/* Save the Date sits tight beneath the date line, inside the first screen. */}
+      <AddToCalendar className="mt-10 sm:mt-12" />
     </section>
   );
 }

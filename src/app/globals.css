@@ -9,6 +9,10 @@
 
   html {
     scroll-behavior: smooth;
+    /* Hero -> Save the Date -> Venue snap in sequence; sections after Venue
+       (Useful Info, RSVP, Footer) have no scroll-snap-align, so scrolling
+       past Venue returns to normal, un-snapped scrolling. */
+    scroll-snap-type: y mandatory;
   }
 
   body {

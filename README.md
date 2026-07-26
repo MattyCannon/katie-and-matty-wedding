@@ -38,16 +38,22 @@ npm run lint    # eslint
 their whole party (per person). It reads from / writes to a Google Sheet via a
 **service account**, and degrades gracefully when unconfigured ("RSVPs open soon").
 
-**Guest list = the second tab** of the Sheet, with columns `Group_ID`, `Name`,
-`Ceremony_Guest` (Yes/No), `Food_Order`. A party is all rows sharing a `Group_ID`.
-Responses are **written back onto that same tab** in columns added automatically on
-the first response: `RSVP_Status`, `RSVP_Email`, `RSVP_Timestamp`. Keep the guest
-list up to date there (extend rows as needed). It's lookup-only — guests not on the
-list are asked to get in touch.
+**Guest list = the tab named `Guest List`.** The tab is found by name and the
+columns by header text, so the column *order* doesn't matter. Three fields are
+needed — a group/party id, a name, and (optionally) a ceremony flag — and the
+accepted header wordings are listed in `COLUMN_ALIASES` at the top of
+`src/lib/guests.ts`. If a header doesn't match, the RSVP page errors with the
+headers it actually found; add the wording to `COLUMN_ALIASES` to fix it.
+
+A party is all rows sharing the same group id. Responses are **written back onto
+that same tab** in columns added automatically on the first response:
+`RSVP_Status`, `RSVP_Email`, `RSVP_Timestamp`. Keep the guest list up to date
+there (extend rows as needed). It's lookup-only — guests not on the list are
+asked to get in touch.
 
 1. **Create the Sheet** (or use the existing one). Copy its id from the URL
-   (`https://docs.google.com/spreadsheets/d/`**`THIS_BIT`**`/edit`). Put the guest
-   list on the **second tab**.
+   (`https://docs.google.com/spreadsheets/d/`**`THIS_BIT`**`/edit`). Name the
+   guest-list tab **`Guest List`**.
 2. **Google Cloud project.** At <https://console.cloud.google.com> create/select a
    project and enable the **Google Sheets API**.
 3. **Service account.** APIs & Services → Credentials → Create credentials →

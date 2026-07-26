@@ -21,8 +21,6 @@ export const wedding = {
     label: "2:00 pm",
     words: "Two o'clock in the afternoon",
   },
-  /** RSVP deadline shown on the RSVP page. EDIT as needed. */
-  rsvpBy: "Saturday 1st May 2027",
   venue: "The Hospitium",
   location: {
     area: "Museum Gardens",
@@ -57,16 +55,6 @@ export const wedding = {
     icsHref: "/katie-and-matty-wedding.ics",
   },
 } as const;
-
-/**
- * Navigation. On-page sections use hash links; sections we'll build later
- * (RSVP, FAQ) point at routes that don't exist yet (they 404 until built).
- */
-export const navLinks = [
-  { label: "RSVP", href: "/rsvp" },
-  { label: "Details", href: "#venue" },
-  { label: "Travel & Stay", href: "#useful-info" },
-] as const;
 
 /** Google Maps embed (no API key needed) + a "Get directions" deep-link. */
 export const maps = {
