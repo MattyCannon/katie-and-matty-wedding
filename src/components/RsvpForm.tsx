@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { EMAIL_RE, type GuestMember } from "@/lib/guestTypes";
-import { Divider } from "@/components/botanical/Divider";
 import CalendarDropdown from "@/components/CalendarDropdown";
 import { arrivalCalendarLinks, wedding } from "@/lib/wedding";
 
@@ -214,8 +213,7 @@ export default function RsvpForm() {
     // Timings are shown at the name-selection stage, not here.
     return (
       <div className="rounded-lg border border-sage/50 bg-ivory/60 px-6 py-12 text-center">
-        <Divider className="mx-auto h-8 w-44" />
-        <p className="mt-6 font-display text-3xl text-ink sm:text-4xl">With thanks</p>
+        <p className="font-display text-3xl text-ink sm:text-4xl">With thanks</p>
         <p className="mx-auto mt-3 max-w-sm font-body text-lg text-ink-soft">{successMsg}</p>
         <p className="mt-6 font-body text-lg text-ink-soft">
           While you&apos;re here —{" "}

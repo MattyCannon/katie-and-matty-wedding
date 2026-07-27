@@ -41,6 +41,9 @@ const RESPONSE_COLS = ["RSVP_Status", "RSVP_Email", "RSVP_Timestamp"] as const;
 type GuestRow = { groupId: string; name: string; ceremonyGuest: boolean };
 type ResolvedColumns = { groupId: string; name: string; ceremonyGuest: string };
 
+/** One row we actually wrote a response onto — used to compose the confirmation email. */
+export type RecordedMember = { name: string; ceremonyGuest: boolean; attending: boolean };
+
 /** Loose header comparison: case, spaces, underscores and hyphens are ignored. */
 function headerKey(value: string): string {
   return value.toLowerCase().replace(/[\s_-]+/g, "");
@@ -160,7 +163,7 @@ export async function recordGroupResponse(
   anchorName: string,
   email: string,
   attendance: AttendanceEntry[]
-): Promise<{ recorded: number }> {
+): Promise<{ recorded: number; members: RecordedMember[] }> {
   const { sheet, cols } = await getGuestSheet();
 
   const header = sheet.headerValues ?? [];
@@ -180,17 +183,27 @@ export async function recordGroupResponse(
   const timestamp = new Date().toISOString();
 
   let recorded = 0;
+  const recordedMembers: RecordedMember[] = [];
   for (const r of rows) {
     if (String(r.get(cols.groupId) ?? "").trim() !== groupId) continue;
     const nm = normalizeName(String(r.get(cols.name) ?? ""));
     if (!attMap.has(nm)) continue;
-    r.set("RSVP_Status", attMap.get(nm) ? "Attending" : "Declined");
+    const attending = !!attMap.get(nm);
+    r.set("RSVP_Status", attending ? "Attending" : "Declined");
     r.set("RSVP_Email", email);
     r.set("RSVP_Timestamp", timestamp);
     await r.save();
     recorded++;
+    recordedMembers.push({
+      name: String(r.get(cols.name) ?? "").trim(),
+      // Same default as the read path: no ceremony column means everyone's full-day.
+      ceremonyGuest: cols.ceremonyGuest
+        ? String(r.get(cols.ceremonyGuest) ?? "").trim().toLowerCase() === "yes"
+        : true,
+      attending,
+    });
   }
 
   listCache = null; // responses changed the sheet
-  return { recorded };
+  return { recorded, members: recordedMembers };
 }

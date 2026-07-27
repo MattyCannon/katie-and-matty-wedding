@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { recordGroupResponse } from "@/lib/guests";
 import { RsvpNotConfiguredError } from "@/lib/googleSheet";
 import { EMAIL_RE, type AttendanceEntry } from "@/lib/guestTypes";
+import { sendEmail } from "@/lib/email";
+import { buildRsvpEmail } from "@/lib/rsvpEmail";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +48,20 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { recorded } = await recordGroupResponse(anchorName, email, attendance);
+    const { recorded, members } = await recordGroupResponse(anchorName, email, attendance);
+
+    // Confirmation email is best-effort: the RSVP is already safely on the sheet,
+    // so a mail failure must never surface as a failed submission.
+    try {
+      const { subject, text } = buildRsvpEmail(members);
+      const result = await sendEmail({ to: email, subject, text });
+      if (!result.sent && !result.skipped) {
+        console.error("[RSVP] confirmation email failed:", result.error);
+      }
+    } catch (mailErr) {
+      console.error("[RSVP] confirmation email threw:", mailErr);
+    }
+
     return NextResponse.json({ ok: true, recorded });
   } catch (err) {
     if (err instanceof RsvpNotConfiguredError) {

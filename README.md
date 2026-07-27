@@ -67,6 +67,27 @@ asked to get in touch.
 6. **Vercel.** Add the same three under Project → Settings → Environment Variables,
    then redeploy.
 
+## RSVP confirmation emails
+
+When someone submits an RSVP, a short plain-text confirmation is emailed to the
+address they gave, listing who's coming and their arrival time. It's **optional**:
+with no API key set, RSVPs save exactly as before and the email is skipped. A
+mail failure never fails the RSVP — the response is already on the sheet.
+
+Sent via [Resend](https://resend.com) with a plain `fetch`, so there's no SDK
+dependency. Wording lives in `src/lib/rsvpEmail.ts`; transport in `src/lib/email.ts`.
+
+1. **Create a Resend account** and add an API key at <https://resend.com/api-keys>.
+2. **Verify a sending domain** (Resend → Domains) and add the DNS records it gives
+   you. This step is required to email guests — Resend's test sender can only
+   deliver to your own address.
+3. **Set env vars** in `.env.local` and in Vercel:
+   - `RESEND_API_KEY`
+   - `RSVP_FROM_EMAIL` — e.g. `Katie & Matty <rsvp@your-domain.co.uk>`, on the
+     verified domain
+   - `RSVP_BCC_EMAIL` — optional, blind-copies you on every confirmation
+4. **Test** by RSVPing as yourself and checking the inbox (and spam folder).
+
 ## Spotify song requests setup
 
 The `/songs` page lets guests search Spotify and add a track to a central

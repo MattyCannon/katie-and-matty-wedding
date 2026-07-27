@@ -56,6 +56,14 @@ Guests find their name, then RSVP for their whole party (per person). It's
     and writes each member's status. Honeypot included.
 - Sheet logic: `src/lib/guests.ts`; shared types: `src/lib/guestTypes.ts`; auth/doc:
   `src/lib/googleSheet.ts` (`getDoc()`).
+- **Confirmation email** (optional): on submit, a short plain-text email goes to
+  the address given, listing who's coming and their arrival time. Transport is
+  `src/lib/email.ts` (Resend HTTP API via `fetch`, no SDK); wording is
+  `src/lib/rsvpEmail.ts` (EDIT-ME). Env: `RESEND_API_KEY`, `RSVP_FROM_EMAIL`,
+  optional `RSVP_BCC_EMAIL`. With no key it's silently skipped, and a mail
+  failure is caught so it can never fail an RSVP that already saved.
+  `recordGroupResponse` returns the rows it wrote (with ceremony flags) so the
+  email doesn't need a second sheet read.
 - Env vars (same as before): `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`,
   `GOOGLE_SHEET_ID`. Degrades gracefully (shows "RSVPs open soon" with no creds).
 - Note: names are matched trimmed + case-insensitive (the sheet has some trailing
