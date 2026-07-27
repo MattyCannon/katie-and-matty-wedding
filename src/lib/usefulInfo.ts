@@ -119,12 +119,17 @@ export const usefulInfo: InfoPanel[] = [
           {
             name: "The Milner York",
             detail: "Where Katie & Matty are staying — by the station",
-            href: "https://www.themilneryork.com/",
+            href: placeMapHref("The Milner York, Station Road, York YO24 1AA"),
           },
           {
-            name: "The Grand, York",
-            detail: "5-star, near the station (~10 min walk)",
-            href: "https://www.thegrandyork.co.uk/",
+            name: "Minster Walk Guesthouse",
+            detail: "22 Marygate — a few minutes' walk to the Museum Gardens gate",
+            href: placeMapHref("Minster Walk Guest House, 22 Marygate, York YO30 7BH"),
+          },
+          {
+            name: "The Churchill Hotel",
+            detail: "65 Bootham — around a 10 minute walk to the venue",
+            href: placeMapHref("The Churchill Hotel, 65 Bootham, York YO30 7DQ"),
           },
         ],
       },

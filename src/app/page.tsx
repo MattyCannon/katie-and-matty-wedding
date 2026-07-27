@@ -17,13 +17,15 @@ export default function Home() {
         stem="sprig"
         className="pointer-events-none absolute right-0 top-0 z-0 w-20 -scale-x-100 opacity-90 sm:w-28 md:w-36"
       />
+      {/* Bottom pair: upright (no vertical flip), so the stems grow up from the
+          bottom edge rather than hanging down from it. */}
       <WildflowerCorner
         stem="sprig"
-        className="pointer-events-none absolute bottom-0 left-0 z-0 w-20 -scale-y-100 opacity-90 sm:w-28 md:w-36"
+        className="pointer-events-none absolute bottom-0 left-0 z-0 w-20 opacity-90 sm:w-28 md:w-36"
       />
       <WildflowerCorner
         stem="flax"
-        className="pointer-events-none absolute bottom-0 right-0 z-0 w-20 -scale-x-100 -scale-y-100 opacity-90 sm:w-28 md:w-36"
+        className="pointer-events-none absolute bottom-0 right-0 z-0 w-20 -scale-x-100 opacity-90 sm:w-28 md:w-36"
       />
 
       <div className="relative z-10 flex min-h-screen flex-col">

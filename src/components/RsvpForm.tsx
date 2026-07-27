@@ -4,8 +4,51 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { EMAIL_RE, type GuestMember } from "@/lib/guestTypes";
 import { Divider } from "@/components/botanical/Divider";
+import { arrivalCalendarLinks, wedding } from "@/lib/wedding";
 
 type Stage = "search" | "group" | "done";
+
+/**
+ * What one kind of guest is invited to, when to arrive, and calendar links with
+ * the right start time. `names` is only passed for mixed parties, where it's
+ * useful to say who this block applies to.
+ */
+function ArrivalCard({
+  kind,
+  names,
+}: {
+  kind: "ceremony" | "evening";
+  names: string[];
+}) {
+  const a = wedding.arrivals[kind];
+  const links = arrivalCalendarLinks(kind);
+
+  return (
+    <div className="rounded-lg border border-sage/40 bg-ivory px-5 py-5">
+      <p className="label text-[0.62rem] text-botanical-red">{a.label}</p>
+
+      {names.length > 0 && (
+        <p className="mt-2 font-body text-sm text-ink-soft">
+          For {names.join(" & ")}
+        </p>
+      )}
+
+      <p className="mt-2 font-body text-lg text-ink">{a.blurb}</p>
+
+      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 font-body">
+        <a className="info-link" href={links.google} target="_blank" rel="noopener noreferrer">
+          Google Calendar
+        </a>
+        <a className="info-link" href={links.outlook} target="_blank" rel="noopener noreferrer">
+          Outlook
+        </a>
+        <a className="info-link" href={links.ics} download>
+          Apple Calendar / Other
+        </a>
+      </div>
+    </div>
+  );
+}
 
 export default function RsvpForm() {
   const [stage, setStage] = useState<Stage>("search");
@@ -152,12 +195,37 @@ export default function RsvpForm() {
   }
 
   if (stage === "done") {
+    // Only tell people about timings if they're actually coming. A party can be
+    // mixed (one ceremony guest, one evening guest), so group the attendees by
+    // invite type and show a block for each type that's present.
+    const comingCeremony = members.filter((m) => attending[m.name] && m.ceremonyGuest);
+    const comingEvening = members.filter((m) => attending[m.name] && !m.ceremonyGuest);
+    const mixed = comingCeremony.length > 0 && comingEvening.length > 0;
+
     return (
       <div className="rounded-lg border border-sage/50 bg-ivory/60 px-6 py-12 text-center">
         <Divider className="mx-auto h-8 w-44" />
         <p className="mt-6 font-display text-3xl text-ink sm:text-4xl">With thanks</p>
         <p className="mx-auto mt-3 max-w-sm font-body text-lg text-ink-soft">{successMsg}</p>
-        <p className="mt-6 font-body text-lg text-ink-soft">
+
+        {(comingCeremony.length > 0 || comingEvening.length > 0) && (
+          <div className="mx-auto mt-8 max-w-md space-y-6 text-left">
+            {comingCeremony.length > 0 && (
+              <ArrivalCard
+                kind="ceremony"
+                names={mixed ? comingCeremony.map((m) => m.name) : []}
+              />
+            )}
+            {comingEvening.length > 0 && (
+              <ArrivalCard
+                kind="evening"
+                names={mixed ? comingEvening.map((m) => m.name) : []}
+              />
+            )}
+          </div>
+        )}
+
+        <p className="mt-8 font-body text-lg text-ink-soft">
           While you&apos;re here —{" "}
           <Link href="/songs" className="info-link">
             add a song to get us dancing
@@ -256,7 +324,9 @@ export default function RsvpForm() {
                   <div className="min-w-0">
                     <p className="font-display text-xl text-ink">{m.name.trim()}</p>
                     <p className="label text-[0.55rem] text-sage">
-                      {m.ceremonyGuest ? "Ceremony & evening" : "Evening"}
+                      {m.ceremonyGuest
+                        ? wedding.arrivals.ceremony.label
+                        : wedding.arrivals.evening.label}
                     </p>
                   </div>
                   <div className="flex gap-2" role="group" aria-label={`Attendance for ${m.name.trim()}`}>

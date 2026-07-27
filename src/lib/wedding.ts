@@ -34,25 +34,52 @@ export const wedding = {
     postcode: "YO1 7FR",
   },
   /**
-   * Calendar event details. Europe/London is BST (UTC+1) on 4 June 2027,
-   * so 2:00 pm local = 13:00 UTC. End time is an estimate — EDIT if needed.
+   * Calendar entries. Europe/London is BST (UTC+1) on 4 June 2027, so 2:00 pm
+   * local = 13:00 UTC. End time is an estimate — EDIT if needed.
+   *
+   * The SAVE THE DATE entry (the button in the hero) is deliberately **all-day**:
+   * it's shown before anyone has looked up their name, so it must not tell an
+   * evening-only guest to arrive at 2:00 pm. Precise arrival times live in
+   * `arrivals` below and are only surfaced after the RSVP lookup, where the
+   * ceremony flag is known.
    */
   calendar: {
     title: "Katie & Matty's Wedding",
     description:
       "We're getting married at The Hospitium, York — we can't wait to celebrate with you!",
     timezone: "Europe/London",
-    /** Local times (no offset) for the human-facing services. */
-    startLocal: "2027-06-04T14:00:00",
-    endLocal: "2027-06-04T23:00:00",
-    /** Local times with offset, for unambiguous Outlook deep-links. */
-    startOffset: "2027-06-04T14:00:00+01:00",
-    endOffset: "2027-06-04T23:00:00+01:00",
-    /** Compact local form for Google Calendar (used with the ctz param). */
-    startCompact: "20270604T140000",
-    endCompact: "20270604T230000",
-    /** Path to the downloadable .ics in /public. */
+    /** All-day: DTEND / Google's end date is EXCLUSIVE, hence the 5th. */
+    allDayStart: "20270604",
+    allDayEndExclusive: "20270605",
+    /** Path to the downloadable all-day .ics in /public. */
     icsHref: "/katie-and-matty-wedding.ics",
+  },
+  /**
+   * EDIT ME — what each kind of guest is invited to, and when to arrive.
+   * `ceremony` = invited to the ceremony and the evening; `evening` = evening only.
+   * Wording is intentionally warm and framed around what guests ARE invited to.
+   */
+  arrivals: {
+    ceremony: {
+      label: "Ceremony & evening",
+      arriveFrom: "1:30 pm",
+      blurb: "Please arrive from 1:30 pm for a 2:00 pm ceremony.",
+      startCompact: "20270604T133000",
+      endCompact: "20270604T230000",
+      startOffset: "2027-06-04T13:30:00+01:00",
+      endOffset: "2027-06-04T23:00:00+01:00",
+      icsHref: "/katie-and-matty-ceremony.ics",
+    },
+    evening: {
+      label: "Evening celebrations",
+      arriveFrom: "7:00 pm",
+      blurb: "Do join us from 7:00 pm for the evening celebrations.",
+      startCompact: "20270604T190000",
+      endCompact: "20270604T230000",
+      startOffset: "2027-06-04T19:00:00+01:00",
+      endOffset: "2027-06-04T23:00:00+01:00",
+      icsHref: "/katie-and-matty-evening.ics",
+    },
   },
 } as const;
 
@@ -99,15 +126,21 @@ export function multiStopMapHref(places: readonly string[]): string {
   return `https://www.google.com/maps/dir/?${params.toString()}`;
 }
 
-/** Builds the Add-to-Calendar deep-links from the details above. */
-export const calendarLinks = {
+export type CalendarTargets = { google: string; outlook: string; ics: string };
+
+/**
+ * Save-the-Date links: an **all-day** entry for 4 June. Used by the hero button,
+ * which is shown before we know whether someone is a day or evening guest, so it
+ * deliberately carries no start time.
+ */
+export const calendarLinks: CalendarTargets = {
   google: (() => {
     const c = wedding.calendar;
     const p = new URLSearchParams({
       action: "TEMPLATE",
       text: c.title,
-      dates: `${c.startCompact}/${c.endCompact}`,
-      ctz: c.timezone,
+      // All-day events use plain dates; the end date is exclusive.
+      dates: `${c.allDayStart}/${c.allDayEndExclusive}`,
       details: c.description,
       location: wedding.address.full,
     });
@@ -117,13 +150,47 @@ export const calendarLinks = {
     const c = wedding.calendar;
     const p = new URLSearchParams({
       rru: "addevent",
+      allday: "true",
       subject: c.title,
-      startdt: c.startOffset,
-      enddt: c.endOffset,
+      startdt: "2027-06-04",
+      enddt: "2027-06-05",
       location: wedding.address.full,
       body: c.description,
     });
     return `https://outlook.live.com/calendar/0/action/compose?${p.toString()}`;
   })(),
   ics: wedding.calendar.icsHref,
-} as const;
+};
+
+/**
+ * Timed calendar links for one kind of guest ("ceremony" or "evening"). Only
+ * used after the RSVP lookup, where the ceremony flag is known — never before.
+ */
+export function arrivalCalendarLinks(kind: keyof typeof wedding.arrivals): CalendarTargets {
+  const a = wedding.arrivals[kind];
+  const c = wedding.calendar;
+
+  const google = new URLSearchParams({
+    action: "TEMPLATE",
+    text: c.title,
+    dates: `${a.startCompact}/${a.endCompact}`,
+    ctz: c.timezone,
+    details: `${c.description} ${a.blurb}`,
+    location: wedding.address.full,
+  });
+
+  const outlook = new URLSearchParams({
+    rru: "addevent",
+    subject: c.title,
+    startdt: a.startOffset,
+    enddt: a.endOffset,
+    location: wedding.address.full,
+    body: `${c.description} ${a.blurb}`,
+  });
+
+  return {
+    google: `https://calendar.google.com/calendar/render?${google.toString()}`,
+    outlook: `https://outlook.live.com/calendar/0/action/compose?${outlook.toString()}`,
+    ics: a.icsHref,
+  };
+}

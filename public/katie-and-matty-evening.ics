@@ -1,0 +1,17 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Katie and Matty//Wedding Website//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:katie-and-matty-wedding-evening-2027-06-04@thehospitium-york
+DTSTAMP:20260101T000000Z
+DTSTART:20270604T180000Z
+DTEND:20270604T220000Z
+SUMMARY:Katie & Matty's Wedding — Evening Celebrations
+DESCRIPTION:We're getting married at The Hospitium, York — we can't wait to celebrate with you! Do join us from 7:00 pm for the evening celebrations.
+LOCATION:The Hospitium, Museum Gardens, York YO1 7FR
+STATUS:CONFIRMED
+TRANSP:OPAQUE
+END:VEVENT
+END:VCALENDAR

@@ -148,8 +148,22 @@ is reachable only from the RSVP success screen.
 ### Editing content (no component changes needed)
 
 - **Event details / calendar / map** → `src/lib/wedding.ts` (names, date, time,
-  address, calendar times, map query). The Add-to-Calendar links and the `.ics`
-  in `public/katie-and-matty-wedding.ics` derive from here — update both if dates change.
+  address, calendar times, map query).
+- **Day vs evening guests.** The guest list's ceremony flag drives everything.
+  Two arrival types live in `wedding.arrivals` (EDIT-ME): `ceremony` (arrive
+  1:30 pm, ceremony 2:00 pm) and `evening` (from 7:00 pm), each with its own
+  wording and calendar times.
+  - The hero's **Save the Date** button is an **all-day** entry for 4 June, on
+    purpose: it's shown before the name lookup, so it must not tell an
+    evening-only guest to arrive at 2:00 pm.
+  - Precise timings + per-type calendar links appear **only after the RSVP
+    lookup**, on the success screen (`ArrivalCard` in `RsvpForm.tsx`), so the
+    day/evening split is never public. Mixed parties get a block per type,
+    labelled with who it applies to.
+  - Three `.ics` files in `public/`: `katie-and-matty-wedding.ics` (all-day),
+    `-ceremony.ics` (13:30–23:00 BST), `-evening.ics` (19:00–23:00 BST). Times
+    are stored as UTC (`Z`), i.e. one hour behind the BST local time. Update all
+    three plus `wedding.ts` if the date or times change.
 - **Useful Information links** → `src/lib/usefulInfo.ts` (one entry per accordion
   panel; each item has an optional `href`). Has an EDIT-ME header.
 - **Map** uses Google's no-key `…/maps?q=…&output=embed`. Renders in real browsers;
@@ -195,7 +209,9 @@ scripts/
 imgs/                   # source artwork (git-ignored, local only)
 
 public/
-├── katie-and-matty-wedding.ics   # downloadable calendar file
+├── katie-and-matty-wedding.ics   # all-day Save the Date
+├── katie-and-matty-ceremony.ics  # 13:30–23:00 BST (ceremony guests)
+├── katie-and-matty-evening.ics   # 19:00–23:00 BST (evening guests)
 └── wildflowers/                  # keyed watercolour cut-outs (corners, divider)
 ```
 
