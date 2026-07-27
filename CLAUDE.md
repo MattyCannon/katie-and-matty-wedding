@@ -156,10 +156,13 @@ is reachable only from the RSVP success screen.
   - The hero's **Save the Date** button is an **all-day** entry for 4 June, on
     purpose: it's shown before the name lookup, so it must not tell an
     evening-only guest to arrive at 2:00 pm.
-  - Precise timings + per-type calendar links appear **only after the RSVP
-    lookup**, on the success screen (`ArrivalCard` in `RsvpForm.tsx`), so the
-    day/evening split is never public. Mixed parties get a block per type,
-    labelled with who it applies to.
+  - Precise timings appear **as soon as a guest picks their name** — the
+    `ArrivalPanel` at the top of the group stage in `RsvpForm.tsx`, above the
+    coming / can't-make-it toggles. Not on the success screen (people need the
+    time before they submit, not after). The day/evening split is still never
+    public, since it's behind the name lookup. Mixed parties get one line per
+    type, labelled with who it applies to, and a **single** Add to Calendar
+    button whose menu is grouped by type (`CalendarDropdown` takes `sections`).
   - Three `.ics` files in `public/`: `katie-and-matty-wedding.ics` (all-day),
     `-ceremony.ics` (13:30–23:00 BST), `-evening.ics` (19:00–23:00 BST). Times
     are stored as UTC (`Z`), i.e. one hour behind the BST local time. Update all

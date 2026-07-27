@@ -1,4 +1,4 @@
-import { usefulInfo, type InfoItem } from "@/lib/usefulInfo";
+import { giftNote, usefulInfo, type InfoItem } from "@/lib/usefulInfo";
 import { Divider } from "@/components/botanical/Divider";
 
 function ItemName({ item }: { item: InfoItem }) {
@@ -80,6 +80,16 @@ export default function UsefulInfo() {
             </div>
           </details>
         ))}
+      </div>
+
+      {/* Gifts — deliberately always visible rather than hidden in a panel.
+          Headed like the section above it (label + bloom divider). */}
+      <div className="mx-auto mt-12 max-w-prose text-center">
+        <p className="label text-[0.72rem] text-botanical-red">{giftNote.heading}</p>
+        <Divider className="mx-auto mt-5 h-7 w-48" />
+        <p className="mx-auto mt-6 font-body text-lg leading-relaxed text-ink-soft">
+          {giftNote.body}
+        </p>
       </div>
     </section>
   );

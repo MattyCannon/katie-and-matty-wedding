@@ -4,47 +4,63 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { EMAIL_RE, type GuestMember } from "@/lib/guestTypes";
 import { Divider } from "@/components/botanical/Divider";
+import CalendarDropdown from "@/components/CalendarDropdown";
 import { arrivalCalendarLinks, wedding } from "@/lib/wedding";
 
 type Stage = "search" | "group" | "done";
 
+type Kind = "ceremony" | "evening";
+
 /**
- * What one kind of guest is invited to, when to arrive, and calendar links with
- * the right start time. `names` is only passed for mixed parties, where it's
- * useful to say who this block applies to.
+ * The "when to arrive" panel shown as soon as a guest picks their name — the
+ * main thing most people come to the page for, so it sits above the fold of the
+ * form rather than being buried after submission.
+ *
+ * A party can be mixed (some invited to the ceremony, some to the evening only),
+ * so one line per type is shown, labelled with who it applies to. The calendar
+ * menu is a single button covering every type present.
  */
-function ArrivalCard({
-  kind,
-  names,
-}: {
-  kind: "ceremony" | "evening";
-  names: string[];
-}) {
-  const a = wedding.arrivals[kind];
-  const links = arrivalCalendarLinks(kind);
+function ArrivalPanel({ members }: { members: GuestMember[] }) {
+  const ceremony = members.filter((m) => m.ceremonyGuest);
+  const evening = members.filter((m) => !m.ceremonyGuest);
+  const mixed = ceremony.length > 0 && evening.length > 0;
+
+  const present: { kind: Kind; who: GuestMember[] }[] = [];
+  if (ceremony.length > 0) present.push({ kind: "ceremony", who: ceremony });
+  if (evening.length > 0) present.push({ kind: "evening", who: evening });
 
   return (
-    <div className="rounded-lg border border-sage/40 bg-ivory px-5 py-5">
-      <p className="label text-[0.62rem] text-botanical-red">{a.label}</p>
+    <div className="mt-5 rounded-lg border border-sage/50 bg-ivory px-5 py-5">
+      <p className="label text-[0.62rem] text-botanical-red">
+        {mixed ? "Your invitations" : "Your invitation"}
+      </p>
 
-      {names.length > 0 && (
-        <p className="mt-2 font-body text-sm text-ink-soft">
-          For {names.join(" & ")}
-        </p>
-      )}
+      <ul className="mt-4 space-y-4">
+        {present.map(({ kind, who }) => {
+          const a = wedding.arrivals[kind];
+          return (
+            <li key={kind}>
+              <p className="font-display text-2xl text-ink">
+                {a.label} · from {a.arriveFrom}
+              </p>
+              <p className="mt-1 font-body text-ink-soft">{a.blurb}</p>
+              {mixed && (
+                <p className="mt-1 font-body text-sm text-sage">
+                  For {who.map((m) => m.name.trim()).join(" & ")}
+                </p>
+              )}
+            </li>
+          );
+        })}
+      </ul>
 
-      <p className="mt-2 font-body text-lg text-ink">{a.blurb}</p>
-
-      <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 font-body">
-        <a className="info-link" href={links.google} target="_blank" rel="noopener noreferrer">
-          Google Calendar
-        </a>
-        <a className="info-link" href={links.outlook} target="_blank" rel="noopener noreferrer">
-          Outlook
-        </a>
-        <a className="info-link" href={links.ics} download>
-          Apple Calendar / Other
-        </a>
+      <div className="mt-5">
+        <CalendarDropdown
+          sections={present.map(({ kind }) => ({
+            heading: mixed ? wedding.arrivals[kind].label : undefined,
+            targets: arrivalCalendarLinks(kind),
+          }))}
+        />
       </div>
     </div>
   );
@@ -195,37 +211,13 @@ export default function RsvpForm() {
   }
 
   if (stage === "done") {
-    // Only tell people about timings if they're actually coming. A party can be
-    // mixed (one ceremony guest, one evening guest), so group the attendees by
-    // invite type and show a block for each type that's present.
-    const comingCeremony = members.filter((m) => attending[m.name] && m.ceremonyGuest);
-    const comingEvening = members.filter((m) => attending[m.name] && !m.ceremonyGuest);
-    const mixed = comingCeremony.length > 0 && comingEvening.length > 0;
-
+    // Timings are shown at the name-selection stage, not here.
     return (
       <div className="rounded-lg border border-sage/50 bg-ivory/60 px-6 py-12 text-center">
         <Divider className="mx-auto h-8 w-44" />
         <p className="mt-6 font-display text-3xl text-ink sm:text-4xl">With thanks</p>
         <p className="mx-auto mt-3 max-w-sm font-body text-lg text-ink-soft">{successMsg}</p>
-
-        {(comingCeremony.length > 0 || comingEvening.length > 0) && (
-          <div className="mx-auto mt-8 max-w-md space-y-6 text-left">
-            {comingCeremony.length > 0 && (
-              <ArrivalCard
-                kind="ceremony"
-                names={mixed ? comingCeremony.map((m) => m.name) : []}
-              />
-            )}
-            {comingEvening.length > 0 && (
-              <ArrivalCard
-                kind="evening"
-                names={mixed ? comingEvening.map((m) => m.name) : []}
-              />
-            )}
-          </div>
-        )}
-
-        <p className="mt-8 font-body text-lg text-ink-soft">
+        <p className="mt-6 font-body text-lg text-ink-soft">
           While you&apos;re here —{" "}
           <Link href="/songs" className="info-link">
             add a song to get us dancing
@@ -310,7 +302,13 @@ export default function RsvpForm() {
           </button>
 
           <p className="mt-5 font-body text-lg text-ink-soft">
-            Lovely to see you, {anchorName.trim()}. Please let us know who can make it:
+            Lovely to see you, {anchorName.trim()}.
+          </p>
+
+          <ArrivalPanel members={members} />
+
+          <p className="mt-8 font-body text-lg text-ink-soft">
+            Please let us know who can make it:
           </p>
 
           <ul className="mt-5 space-y-3">

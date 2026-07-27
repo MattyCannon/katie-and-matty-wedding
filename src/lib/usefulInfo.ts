@@ -151,3 +151,15 @@ export const usefulInfo: InfoPanel[] = [
     },
   },
 ];
+
+/**
+ * EDIT ME — the note about gifts. Shown always-visible beneath the Useful
+ * Information accordion, not tucked inside a panel.
+ */
+export const giftNote = {
+  heading: "Gifts",
+  body:
+    "The most important thing to us is having you there to celebrate on the day. " +
+    "If you would like to give a gift, a contribution towards our honeymoon fund " +
+    "would be very gratefully received.",
+} as const;
