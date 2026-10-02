@@ -1,5 +1,6 @@
 import { giftNote, usefulInfo, type InfoItem } from "@/lib/usefulInfo";
 import { Divider } from "@/components/botanical/Divider";
+import { WildflowerScatter } from "@/components/botanical/WildflowerScatter";
 
 function ItemName({ item }: { item: InfoItem }) {
   if (item.href) {
@@ -15,6 +16,8 @@ function ItemName({ item }: { item: InfoItem }) {
 export default function UsefulInfo() {
   return (
     <section id="useful-info" className="section-anchor relative px-6 pb-16 pt-8">
+      <WildflowerScatter variant="quiet" />
+
       <div className="mx-auto max-w-prose text-center">
         <p className="label text-[0.72rem] text-botanical-red">Useful Information</p>
         <Divider className="mx-auto mt-5 h-7 w-48" />

@@ -109,23 +109,83 @@ reference only — it's a template printed with other names).
 - Labels: the `.label` utility (uppercase, letter-spaced) gives the small-caps,
   "Order of Service" feel. Use for nav items, eyebrows, and detail labels.
 
-**Illustration style**
-- Watercolour botanical illustration, cut from a **licensed Adobe Stock** sheet
-  (`imgs/AdobeStock_1554878676.jpeg` — six wildflower stems on white). `imgs/` is
-  **git-ignored** — the source artwork stays local, since stock licences cover
-  using an asset in the finished site but not redistributing the original file.
-  Only the derived cut-outs below are committed.
-- Three elements are cut from it, each with the white paper **keyed to
-  transparency** with a soft alpha ramp so watercolour edges stay feathered:
-  - `public/wildflowers/corner-blue-flax.webp` — blue flax stem
-  - `public/wildflowers/corner-meadow-sprig.webp` — mixed meadow sprig
-  - `public/wildflowers/divider-bloom.webp` — a single yellow-orange bloom
-- The two stems **frame the corners** (`WildflowerCorner`), mirrored with
-  `-scale-x-100` / `-scale-y-100`. The bloom sits between sage hairlines as the
-  **section divider** (`Divider`).
+**Illustration style — wildflowers growing in from the edges**
+
+Every motif is a cut stem with the bloom at the top. Each one is planted by its
+**root** on an edge or in a corner of the screen and grown inward,
+flower-first, towards the middle. Nothing floats in open space: a stem always
+comes from somewhere off-page, with its foot just outside the viewport — the
+way a border of real pressed flowers would sit. Corners carry the fullest
+clusters; the middle of each edge is thinner.
+
+This is the site's **one** decoration language — don't add a second, and don't
+reintroduce free-floating motifs.
+
+- **Two local sources**, both git-ignored (`imgs/`), because stock licences
+  cover using the artwork in the finished site but not redistributing the
+  original files. Only the small `.webp` cut-outs are committed.
+  1. `imgs/AdobeStock_1554878676.jpeg` — the **licensed Adobe Stock** sheet:
+     six wildflower stems on white, 8736x4896. All the *detail* comes from here.
+  2. `imgs/wildflowers-source/*.png` — **Katie & Matty's own hand-cut motifs**,
+     one flower each on white with neighbouring stems erased. These are the
+     authority on **which** flower and **how much of it** each motif is. They're
+     only 30–90px, so they can't be used directly at retina sizes.
+- **11 motifs** are built by `scripts/cut-wildflowers.py`
+  (`python3 scripts/cut-wildflowers.py`) into `public/wildflowers/scatter/*.webp`.
+  It takes the framing from (2) and the resolution from (1): it locates each
+  hand-cut PNG in the full sheet by **multi-scale template matching** (all
+  eleven land at ~0.068 scale, which is how we know they share a source), crops
+  the sheet at full resolution there, then uses the hand-cut silhouette as a
+  **stencil** — so whatever neighbouring artwork happens to fall inside that
+  rectangle stays erased. Finally the white paper is **keyed to transparency**
+  with a soft ramp so watercolour edges stay feathered, and un-blended so a
+  pale petal keeps its real colour.
+  - To add or re-frame a motif: drop a new hand-cut PNG into
+    `imgs/wildflowers-source/`, re-run the script, and paste the `MOTIFS` block
+    it prints into `WildflowerScatter.tsx`. The filename becomes the motif key.
+  - The script flags any weak template match (< 0.75) to check by eye.
+- `public/wildflowers/divider-bloom.webp` is the older, separate cut-out used by
+  `Divider` (a single bloom between sage hairlines). Still in use, unchanged.
+- **`WildflowerScatter`** plants them, each motif reused two or three times at
+  a different length, angle and mirroring — that repetition is what keeps the
+  border from reading as a pattern. `variant` picks the fullness: `hero` (24
+  stems), `section` (venue), `quiet` (long text pages, `/rsvp`, `/songs`) —
+  plus a deterministic confetti of tiny colour specks for the invite's
+  seed-paper texture (no `Math.random`, so no hydration mismatch).
+  **Positions are the EDIT-ME bit**, in `LAYOUTS`, grouped by edge.
+  - Mount it as the first child of a **`relative`** section; it sits at
+    `-z-10`, behind in-flow content. It needs *some* ancestor stacking context
+    or it vanishes behind the body background — on the landing page that's the
+    existing `relative z-10` wrapper in `page.tsx`; `/rsvp` and `/songs` carry
+    `isolate` on their root. Don't put `isolate` on the sections themselves:
+    that would trap the Add to Calendar dropdown inside the hero.
+  - `x`/`y`/`fromBottom` are the **root** of the stem — the point it grows out
+    of — not the centre of the picture. The component pivots each motif about
+    the foot of its stem (`transform-origin: 50% 100%` plus a matching
+    translate), so a stem swings out from its root like a real one instead of
+    orbiting its own bounding box. Keep roots just off-page (`x: -1`, `y: -2`,
+    `fromBottom: -2`).
+  - `grow` is the direction it grows, in degrees clockwise from straight up.
+    Use the `FROM_*` constants — named for the edge the stem is rooted on, so
+    `FROM_LEFT` grows rightwards — plus a few degrees of lean
+    (`FROM_LEFT + 12`) so the border doesn't look combed. Every stem should end
+    up pointing roughly at the middle of the screen.
+  - `size` is the stem's **length**, which is also how far it reaches inward —
+    so it's the number to watch. Side stems can be long (the type column
+    doesn't begin until `x` 28%); stems rooted on the bottom edge grow *up*
+    towards the Save the Date button and must stay under ~72px in the middle
+    third. Top-edge stems hang down, so keep them out of `x` 28–72 (and mind
+    the `lg`-only eyebrow line, roughly `x` 38–62).
+  - `wideOnly` drops a stem below `sm`, where the type fills the width. `--wf`
+    on the layer scales the whole border down on narrower screens.
 - All decoration is `aria-hidden` + `pointer-events-none`, with `alt=""`.
-- The earlier hand-drawn SVG system (`Botanicals.tsx`) has been **removed** —
-  photographic/watercolour artwork replaced it. Don't reintroduce SVG flowers.
+- Two earlier systems have been **removed** — don't reintroduce either: the
+  hand-drawn SVG flowers (`Botanicals.tsx`), and the four tall corner stems
+  (`WildflowerCorner`, with `corner-blue-flax` / `corner-meadow-sprig`), which
+  pinned one repeated stem to each corner and read as a printed frame.
+- Note the component is still named `WildflowerScatter` from an earlier draft
+  that strewed motifs freely across the page; it now plants them rooted at the
+  edges. Rename it if it starts to mislead — it's imported in five places.
 
 ## Site map / roadmap
 
@@ -187,7 +247,7 @@ is reachable only from the RSVP success screen.
 src/
 ├── app/
 │   ├── layout.tsx      # fonts, <html>, metadata
-│   ├── page.tsx        # landing page composition + corner botanicals
+│   ├── page.tsx        # landing page composition (each section plants its own flowers)
 │   └── globals.css     # Tailwind layers, base styles, .label/.btn/.acc utilities
 ├── app/api/spotify/    # song search + add route handlers
 ├── app/api/guests/     # guest-list search + group resolve
@@ -204,8 +264,8 @@ src/
 │   ├── SongRequest.tsx      # Spotify search/add client component
 │   ├── Footer.tsx
 │   └── botanical/
-│       ├── WildflowerCorner.tsx # watercolour corner stems (flax / sprig)
-│       └── Divider.tsx          # single bloom between sage hairlines
+│       ├── WildflowerScatter.tsx # stems rooted at the page edges; EDIT-ME layouts
+│       └── Divider.tsx           # single bloom between sage hairlines
 └── lib/
     ├── wedding.ts      # event details + calendar/map link builders
     ├── usefulInfo.ts   # EDIT-ME accordion content (travel/stay/recommendations)
@@ -215,15 +275,20 @@ src/
     └── spotify.ts      # Spotify search/add client
 
 scripts/
-└── spotify-auth.mjs    # one-time: obtain the Spotify refresh token
+├── spotify-auth.mjs     # one-time: obtain the Spotify refresh token
+└── cut-wildflowers.py   # re-cut the scatter motifs from the stock sheet
 
-imgs/                   # source artwork (git-ignored, local only)
+imgs/                          # source artwork (git-ignored, local only)
+├── AdobeStock_1554878676.jpeg # the licensed sheet — supplies the resolution
+└── wildflowers-source/        # the couple's hand-cut motifs — supply the framing
 
 public/
 ├── katie-and-matty-wedding.ics   # all-day Save the Date
 ├── katie-and-matty-ceremony.ics  # 13:30–23:00 BST (ceremony guests)
 ├── katie-and-matty-evening.ics   # 19:00–23:00 BST (evening guests)
-└── wildflowers/                  # keyed watercolour cut-outs (corners, divider)
+└── wildflowers/
+    ├── divider-bloom.webp        # single bloom used by Divider
+    └── scatter/                  # 11 keyed motifs used by WildflowerScatter
 ```
 
 Tip: `npm run dev` runs the site at http://localhost:3000. (There's a Claude Code

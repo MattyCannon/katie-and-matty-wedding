@@ -1,5 +1,6 @@
 import { maps, wedding } from "@/lib/wedding";
 import { Divider } from "@/components/botanical/Divider";
+import { WildflowerScatter } from "@/components/botanical/WildflowerScatter";
 
 export default function VenueMap() {
   return (
@@ -7,6 +8,8 @@ export default function VenueMap() {
       id="venue"
       className="section-anchor relative flex min-h-dvh snap-start flex-col items-center justify-center px-6 py-16 text-center"
     >
+      <WildflowerScatter variant="section" />
+
       <div className="mx-auto max-w-2xl">
         <p className="label text-[0.72rem] text-botanical-red">The Venue</p>
         <h2 className="mt-4 font-display text-4xl text-ink sm:text-5xl">{wedding.venue}</h2>

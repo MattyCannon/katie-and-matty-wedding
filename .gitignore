@@ -36,3 +36,6 @@ next-env.d.ts
 # stock licences allow using an asset in the finished site (see the derived
 # cut-outs in public/wildflowers/) but not redistributing the original file.
 /imgs/
+
+# Python bytecode from scripts/
+__pycache__/
