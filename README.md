@@ -38,16 +38,22 @@ npm run lint    # eslint
 their whole party (per person). It reads from / writes to a Google Sheet via a
 **service account**, and degrades gracefully when unconfigured ("RSVPs open soon").
 
-**Guest list = the second tab** of the Sheet, with columns `Group_ID`, `Name`,
-`Ceremony_Guest` (Yes/No), `Food_Order`. A party is all rows sharing a `Group_ID`.
-Responses are **written back onto that same tab** in columns added automatically on
-the first response: `RSVP_Status`, `RSVP_Email`, `RSVP_Timestamp`. Keep the guest
-list up to date there (extend rows as needed). It's lookup-only — guests not on the
-list are asked to get in touch.
+**Guest list = the tab named `Guest List`.** The tab is found by name and the
+columns by header text, so the column *order* doesn't matter. Three fields are
+needed — a group/party id, a name, and (optionally) a ceremony flag — and the
+accepted header wordings are listed in `COLUMN_ALIASES` at the top of
+`src/lib/guests.ts`. If a header doesn't match, the RSVP page errors with the
+headers it actually found; add the wording to `COLUMN_ALIASES` to fix it.
+
+A party is all rows sharing the same group id. Responses are **written back onto
+that same tab** in columns added automatically on the first response:
+`RSVP_Status`, `RSVP_Email`, `RSVP_Timestamp`. Keep the guest list up to date
+there (extend rows as needed). It's lookup-only — guests not on the list are
+asked to get in touch.
 
 1. **Create the Sheet** (or use the existing one). Copy its id from the URL
-   (`https://docs.google.com/spreadsheets/d/`**`THIS_BIT`**`/edit`). Put the guest
-   list on the **second tab**.
+   (`https://docs.google.com/spreadsheets/d/`**`THIS_BIT`**`/edit`). Name the
+   guest-list tab **`Guest List`**.
 2. **Google Cloud project.** At <https://console.cloud.google.com> create/select a
    project and enable the **Google Sheets API**.
 3. **Service account.** APIs & Services → Credentials → Create credentials →
@@ -60,6 +66,27 @@ list are asked to get in touch.
    - `GOOGLE_SHEET_ID` — from step 1
 6. **Vercel.** Add the same three under Project → Settings → Environment Variables,
    then redeploy.
+
+## RSVP confirmation emails
+
+When someone submits an RSVP, a short plain-text confirmation is emailed to the
+address they gave, listing who's coming and their arrival time. It's **optional**:
+with no API key set, RSVPs save exactly as before and the email is skipped. A
+mail failure never fails the RSVP — the response is already on the sheet.
+
+Sent via [Resend](https://resend.com) with a plain `fetch`, so there's no SDK
+dependency. Wording lives in `src/lib/rsvpEmail.ts`; transport in `src/lib/email.ts`.
+
+1. **Create a Resend account** and add an API key at <https://resend.com/api-keys>.
+2. **Verify a sending domain** (Resend → Domains) and add the DNS records it gives
+   you. This step is required to email guests — Resend's test sender can only
+   deliver to your own address.
+3. **Set env vars** in `.env.local` and in Vercel:
+   - `RESEND_API_KEY`
+   - `RSVP_FROM_EMAIL` — e.g. `Katie & Matty <rsvp@your-domain.co.uk>`, on the
+     verified domain
+   - `RSVP_BCC_EMAIL` — optional, blind-copies you on every confirmation
+4. **Test** by RSVPing as yourself and checking the inbox (and spam folder).
 
 ## Spotify song requests setup
 

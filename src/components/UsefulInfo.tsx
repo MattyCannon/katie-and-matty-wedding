@@ -1,5 +1,6 @@
-import { usefulInfo, type InfoItem } from "@/lib/usefulInfo";
+import { giftNote, usefulInfo, type InfoItem } from "@/lib/usefulInfo";
 import { Divider } from "@/components/botanical/Divider";
+import { WildflowerScatter } from "@/components/botanical/WildflowerScatter";
 
 function ItemName({ item }: { item: InfoItem }) {
   if (item.href) {
@@ -15,6 +16,8 @@ function ItemName({ item }: { item: InfoItem }) {
 export default function UsefulInfo() {
   return (
     <section id="useful-info" className="section-anchor relative px-6 pb-16 pt-8">
+      <WildflowerScatter variant="quiet" />
+
       <div className="mx-auto max-w-prose text-center">
         <p className="label text-[0.72rem] text-botanical-red">Useful Information</p>
         <Divider className="mx-auto mt-5 h-7 w-48" />
@@ -64,9 +67,32 @@ export default function UsefulInfo() {
                   </ul>
                 </div>
               ))}
+
+              {panel.mapLink && (
+                <div className="mt-5">
+                  <a
+                    className="btn"
+                    href={panel.mapLink.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {panel.mapLink.label}
+                  </a>
+                </div>
+              )}
             </div>
           </details>
         ))}
+      </div>
+
+      {/* Gifts — deliberately always visible rather than hidden in a panel.
+          Headed like the section above it (label + bloom divider). */}
+      <div className="mx-auto mt-12 max-w-prose text-center">
+        <p className="label text-[0.72rem] text-botanical-red">{giftNote.heading}</p>
+        <Divider className="mx-auto mt-5 h-7 w-48" />
+        <p className="mx-auto mt-6 font-body text-lg leading-relaxed text-ink-soft">
+          {giftNote.body}
+        </p>
       </div>
     </section>
   );

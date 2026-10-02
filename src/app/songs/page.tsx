@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
-import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
 import SongRequest from "@/components/SongRequest";
-import { CornerCluster } from "@/components/botanical/Botanicals";
+import { WildflowerScatter } from "@/components/botanical/WildflowerScatter";
 import { Divider } from "@/components/botanical/Divider";
 import { wedding } from "@/lib/wedding";
 
@@ -13,13 +12,10 @@ export const metadata: Metadata = {
 
 export default function SongsPage() {
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <CornerCluster className="pointer-events-none absolute left-0 top-0 z-0 w-32 opacity-95 sm:w-44 md:w-56" />
-      <CornerCluster className="pointer-events-none absolute right-0 top-0 z-0 w-32 -scale-x-100 opacity-95 sm:w-44 md:w-56" />
+    <div className="relative isolate min-h-screen overflow-hidden">
+      <WildflowerScatter variant="quiet" />
 
-      <div className="relative z-10 flex min-h-screen flex-col">
-        <NavBar />
-
+      <div className="flex min-h-screen flex-col">
         <main className="flex-1 px-6 py-8">
           <div className="mx-auto max-w-xl">
             <div className="text-center">

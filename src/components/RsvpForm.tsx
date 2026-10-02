@@ -3,9 +3,67 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { EMAIL_RE, type GuestMember } from "@/lib/guestTypes";
-import { Divider } from "@/components/botanical/Divider";
+import CalendarDropdown from "@/components/CalendarDropdown";
+import { arrivalCalendarLinks, wedding } from "@/lib/wedding";
 
 type Stage = "search" | "group" | "done";
+
+type Kind = "ceremony" | "evening";
+
+/**
+ * The "when to arrive" panel shown as soon as a guest picks their name — the
+ * main thing most people come to the page for, so it sits above the fold of the
+ * form rather than being buried after submission.
+ *
+ * A party can be mixed (some invited to the ceremony, some to the evening only),
+ * so one line per type is shown, labelled with who it applies to. The calendar
+ * menu is a single button covering every type present.
+ */
+function ArrivalPanel({ members }: { members: GuestMember[] }) {
+  const ceremony = members.filter((m) => m.ceremonyGuest);
+  const evening = members.filter((m) => !m.ceremonyGuest);
+  const mixed = ceremony.length > 0 && evening.length > 0;
+
+  const present: { kind: Kind; who: GuestMember[] }[] = [];
+  if (ceremony.length > 0) present.push({ kind: "ceremony", who: ceremony });
+  if (evening.length > 0) present.push({ kind: "evening", who: evening });
+
+  return (
+    <div className="mt-5 rounded-lg border border-sage/50 bg-ivory px-5 py-5">
+      <p className="label text-[0.62rem] text-botanical-red">
+        {mixed ? "Your invitations" : "Your invitation"}
+      </p>
+
+      <ul className="mt-4 space-y-4">
+        {present.map(({ kind, who }) => {
+          const a = wedding.arrivals[kind];
+          return (
+            <li key={kind}>
+              <p className="font-display text-2xl text-ink">
+                {a.label} · from {a.arriveFrom}
+              </p>
+              <p className="mt-1 font-body text-ink-soft">{a.blurb}</p>
+              {mixed && (
+                <p className="mt-1 font-body text-sm text-sage">
+                  For {who.map((m) => m.name.trim()).join(" & ")}
+                </p>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="mt-5">
+        <CalendarDropdown
+          sections={present.map(({ kind }) => ({
+            heading: mixed ? wedding.arrivals[kind].label : undefined,
+            targets: arrivalCalendarLinks(kind),
+          }))}
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function RsvpForm() {
   const [stage, setStage] = useState<Stage>("search");
@@ -152,10 +210,10 @@ export default function RsvpForm() {
   }
 
   if (stage === "done") {
+    // Timings are shown at the name-selection stage, not here.
     return (
       <div className="rounded-lg border border-sage/50 bg-ivory/60 px-6 py-12 text-center">
-        <Divider className="mx-auto h-8 w-44" />
-        <p className="mt-6 font-display text-3xl text-ink sm:text-4xl">With thanks</p>
+        <p className="font-display text-3xl text-ink sm:text-4xl">With thanks</p>
         <p className="mx-auto mt-3 max-w-sm font-body text-lg text-ink-soft">{successMsg}</p>
         <p className="mt-6 font-body text-lg text-ink-soft">
           While you&apos;re here —{" "}
@@ -242,7 +300,13 @@ export default function RsvpForm() {
           </button>
 
           <p className="mt-5 font-body text-lg text-ink-soft">
-            Lovely to see you, {anchorName.trim()}. Please let us know who can make it:
+            Lovely to see you, {anchorName.trim()}.
+          </p>
+
+          <ArrivalPanel members={members} />
+
+          <p className="mt-8 font-body text-lg text-ink-soft">
+            Please let us know who can make it:
           </p>
 
           <ul className="mt-5 space-y-3">
@@ -256,7 +320,9 @@ export default function RsvpForm() {
                   <div className="min-w-0">
                     <p className="font-display text-xl text-ink">{m.name.trim()}</p>
                     <p className="label text-[0.55rem] text-sage">
-                      {m.ceremonyGuest ? "Ceremony & evening" : "Evening"}
+                      {m.ceremonyGuest
+                        ? wedding.arrivals.ceremony.label
+                        : wedding.arrivals.evening.label}
                     </p>
                   </div>
                   <div className="flex gap-2" role="group" aria-label={`Attendance for ${m.name.trim()}`}>
