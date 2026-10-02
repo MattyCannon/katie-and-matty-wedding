@@ -35,7 +35,7 @@ export const wedding = {
   },
   /**
    * Calendar entries. Europe/London is BST (UTC+1) on 4 June 2027, so 2:00 pm
-   * local = 13:00 UTC. End time is an estimate — EDIT if needed.
+   * local = 13:00 UTC. The timed entries below end at midnight (00:00 on the 5th).
    *
    * The SAVE THE DATE entry (the button in the hero) is deliberately **all-day**:
    * it's shown before anyone has looked up their name, so it must not tell an
@@ -65,9 +65,9 @@ export const wedding = {
       arriveFrom: "1:30 pm",
       blurb: "Please arrive from 1:30 pm for a 2:00 pm ceremony.",
       startCompact: "20270604T133000",
-      endCompact: "20270604T230000",
+      endCompact: "20270605T000000",
       startOffset: "2027-06-04T13:30:00+01:00",
-      endOffset: "2027-06-04T23:00:00+01:00",
+      endOffset: "2027-06-05T00:00:00+01:00",
       icsHref: "/katie-and-matty-ceremony.ics",
     },
     evening: {
@@ -75,9 +75,9 @@ export const wedding = {
       arriveFrom: "7:00 pm",
       blurb: "Do join us from 7:00 pm for the evening celebrations.",
       startCompact: "20270604T190000",
-      endCompact: "20270604T230000",
+      endCompact: "20270605T000000",
       startOffset: "2027-06-04T19:00:00+01:00",
-      endOffset: "2027-06-04T23:00:00+01:00",
+      endOffset: "2027-06-05T00:00:00+01:00",
       icsHref: "/katie-and-matty-evening.ics",
     },
   },
