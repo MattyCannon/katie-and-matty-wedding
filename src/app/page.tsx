@@ -15,23 +15,31 @@ export default function Home() {
         {/* One border around the whole page: top, both sides, bottom. */}
         <WildflowerBorder />
 
+        {/*
+          The RSVP button lives in a slim header at the very top, centred. It's
+          absolutely positioned so the hero keeps its full-viewport height; the
+          hero's top padding leaves room for it. The border's top cluster keeps
+          clear of the centre (its top-edge stems hang from the outer fifths).
+        */}
+        <header className="absolute inset-x-0 top-0 z-20 flex justify-center px-6 pt-6 sm:pt-8">
+          <nav aria-label="Primary">
+            <Link
+              href="/rsvp"
+              className="inline-flex items-center justify-center rounded-full border border-botanical-red bg-botanical-red px-9 py-2.5 font-display text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-ivory transition-colors duration-200 hover:bg-botanical-red-deep sm:px-10 sm:py-3"
+            >
+              RSVP
+            </Link>
+          </nav>
+        </header>
+
         <main className="flex-1">
           <Hero />
           <VenueMap />
           <UsefulInfo />
-
-          <section className="relative px-6 pb-8 pt-4 text-center">
-            <div>
-              <Link
-                href="/rsvp"
-                className="inline-flex items-center justify-center rounded-full border border-botanical-red bg-botanical-red px-10 py-3.5 font-display uppercase tracking-[0.18em] text-[0.82rem] font-semibold text-ivory transition-colors duration-200 hover:bg-botanical-red-deep"
-              >
-                RSVP
-              </Link>
-            </div>
-          </section>
         </main>
-        <Footer />
+
+        {/* No divider here: the RSVP button it used to sit beneath has moved to the header. */}
+        <Footer divider={false} />
       </div>
     </div>
   );

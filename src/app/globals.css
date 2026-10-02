@@ -69,6 +69,18 @@
     letter-spacing: 0.18em;
     font-weight: 600;
     font-size: 0.72rem;
+    max-width: 100%;
+    text-align: center;
+  }
+  /* Narrow phones: tighten the tracking and padding so a long label (e.g. "See
+     them all on Google Maps") stays on one line inside the pill instead of
+     wrapping into a squashed two-line capsule. */
+  @media (max-width: 380px) {
+    .btn {
+      letter-spacing: 0.1em;
+      padding-inline: 1rem;
+      font-size: 0.66rem;
+    }
   }
   .btn:hover {
     @apply border-botanical-red bg-ivory text-botanical-red;
@@ -83,6 +95,13 @@
   }
   details.acc > summary::-webkit-details-marker {
     display: none;
+  }
+  /* Narrow phones: a slightly smaller title keeps "Local Recommendations" on one
+     line beside its chevron instead of wrapping into a cramped two-liner. */
+  @media (max-width: 380px) {
+    details.acc > summary {
+      font-size: 1.3rem;
+    }
   }
   details.acc > summary:hover {
     @apply text-botanical-red;

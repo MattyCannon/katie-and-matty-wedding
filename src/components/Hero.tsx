@@ -4,8 +4,9 @@ export default function Hero() {
   return (
     // The wildflower border is drawn once for the whole page (see
     // `WildflowerBorder`), not per section. Everything here is centred in the
-    // first screen, horizontally and vertically.
-    <section className="relative flex min-h-dvh snap-start flex-col items-center justify-center px-6 py-16 text-center">
+    // first screen, horizontally and vertically. The generous, symmetrical
+    // `py-24` keeps the block clear of the RSVP header that sits over the top.
+    <section className="relative flex min-h-dvh snap-start flex-col items-center justify-center px-6 py-24 text-center">
       <p className="label hidden text-[0.7rem] text-botanical-red lg:block">
         Together with their friends &amp; family
       </p>

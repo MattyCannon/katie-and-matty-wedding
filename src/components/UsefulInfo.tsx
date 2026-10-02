@@ -14,7 +14,11 @@ function ItemName({ item }: { item: InfoItem }) {
 
 export default function UsefulInfo() {
   return (
-    <section id="useful-info" className="section-anchor relative px-6 pb-16 pt-8">
+    // Wider side margins (36px on phones, 56px on tablets, matching the reach of
+    // the border's side stems at those sizes): this text is left-aligned and runs
+    // right to the margin, so anything narrower puts the side flowers on top of
+    // the first letters. From `lg` the centred column has plenty of room either side.
+    <section id="useful-info" className="section-anchor relative px-9 pb-16 pt-8 sm:px-14">
       <div className="mx-auto max-w-prose text-center">
         <p className="label text-[0.72rem] text-botanical-red">Useful Information</p>
         <Divider className="mx-auto mt-5 h-7 w-48" />

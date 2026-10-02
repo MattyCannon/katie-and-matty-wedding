@@ -269,9 +269,11 @@ export function WildflowerBorder({ className = "" }: { className?: string }) {
       // `--wf` scales the whole border down on narrower screens, so the stems
       // keep their relationship to each other instead of crowding the content.
       // `-z-10` needs an ancestor stacking context — see "Mounting it" above.
-      // `--rail` further shortens the side-run stems on phones (1 from `sm` up), so
-      // they stay out of the text column; see `Placement.rail`.
-      className={`pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden [--wf:0.58] [--rail:0.55] sm:[--wf:0.78] sm:[--rail:1] lg:[--wf:1] ${className}`}
+      // `--rail` further shortens the side-run stems below `lg` (0.55 on phones,
+      // 0.7 on tablets, 1 from `lg`), so they stay out of the text column: on a
+      // tablet the text spans nearly the full width, so full-size stems would sit
+      // on top of it. See `Placement.rail`.
+      className={`pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden [--wf:0.58] [--rail:0.55] sm:[--wf:0.78] sm:[--rail:0.7] lg:[--wf:1] lg:[--rail:1] ${className}`}
     >
       {SPECKS.map((speck, i) => (
         <span

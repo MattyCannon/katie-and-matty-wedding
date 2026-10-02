@@ -209,12 +209,16 @@ reintroduce free-floating motifs.
     Keep side stems under ~115px so they hug the edge; bottom-edge stems grow
     *up*, so keep the middle ones under ~72px or they reach the footer text
     (`Footer` has extra bottom padding for this); top-edge stems hang down, so
-    keep them out of `x` 28–72 where the hero type sits.
+    keep them out of `x` 28–72 where the hero type and the **header RSVP button**
+    (top centre of the landing page) sit.
   - `wideOnly` drops a stem below `sm`. `--wf` on the layer scales every length
     and gap down on narrower screens; `--rail` additionally shortens the **side
-    run only** on phones (0.55 below `sm`, 1 from `sm`), because centred lines on
-    a phone run nearly edge to edge and a long side stem would reach into them.
-    The top and bottom clusters are not shortened.
+    run only** below `lg` (0.55 on phones, 0.7 on tablets, 1 from `lg`), because
+    on a phone or tablet the text runs nearly edge to edge and a long side stem
+    would sit on top of it. The top and bottom clusters are not shortened.
+    Text-heavy sections pair this with wider side margins (`UsefulInfo` is
+    `px-9` on phones, `sm:px-14` on tablets; `Footer` is `px-8` on phones) so the
+    first letters of left-aligned text clear the stems.
 - All decoration is `aria-hidden` + `pointer-events-none`, with `alt=""`.
 - Earlier systems have been **removed** — don't reintroduce them: the
   hand-drawn SVG flowers (`Botanicals.tsx`); the four tall corner stems
@@ -226,11 +230,16 @@ reintroduce free-floating motifs.
 
 ## Site map / roadmap
 
-There is **no nav bar** — it was removed from every page, along with `navLinks`.
-Navigation is by scrolling, plus the RSVP button.
+There is **no nav bar** (it was removed, along with `navLinks`). The only
+navigation is a slim **header** at the very top of the landing page holding a
+single centred **RSVP button** → `/rsvp`, plus scrolling. The header is
+`absolute` (so the hero keeps its full-viewport height and the button scrolls
+away with the page), and the hero has symmetrical `py-24` so its content clears
+it. The border's top cluster keeps clear of the top centre for it.
 
 Landing-page sections, top to bottom:
 
+0. Header — centred RSVP button (see above). Only on the landing page.
 1. Hero — names + date/venue (eyebrow: "Together with their friends & family").
    Full viewport (`min-h-dvh`), **scroll-snap page**, content **centred**
    horizontally and vertically. There is **no Save the Date heading and no Add to
@@ -239,9 +248,13 @@ Landing-page sections, top to bottom:
 2. The Venue (`#venue`) — **Google Maps embed** (no API key) + "Get directions".
    Full viewport, **scroll-snap page**.
 3. Useful Information (`#useful-info`) — **accordion**: Travel, Where to Stay,
-   Local Recommendations
-4. RSVP call-to-action button → `/rsvp`
-5. Footer
+   Local Recommendations. On narrow phones the section titles shrink slightly
+   and `.btn` tightens its tracking so nothing wraps into a cramped two-liner.
+4. Footer — `Footer` takes `divider` (default on): the landing page passes
+   `divider={false}` (the bloom divider used to sit beneath the old RSVP button),
+   while `/rsvp` and `/songs` keep it. The footer line is three `nowrap` parts
+   (names / date / place) that **stack on phones and sit in one row from `md`**,
+   so the date can never break across lines.
 
 Snapping runs **Hero → Venue**. Sections after Venue have no `snap-align`, so
 scrolling returns to normal.
