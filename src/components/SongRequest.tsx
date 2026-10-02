@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Track } from "@/lib/spotify";
+import { SONG_PICKED_STORAGE_KEY, type PickedSong } from "@/lib/songLimit";
 
 type AddState = "idle" | "adding" | "added" | "duplicate" | "error";
 
@@ -12,7 +13,25 @@ export default function SongRequest() {
   const [comingSoon, setComingSoon] = useState(false);
   const [searchError, setSearchError] = useState(false);
   const [addState, setAddState] = useState<Record<string, AddState>>({});
+  // One song per guest: set once their song is on the playlist (or the server
+  // tells us this browser has already used its request).
+  const [picked, setPicked] = useState<PickedSong | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
   const honeypot = useRef<HTMLInputElement>(null);
+
+  // Remember a previous pick across visits. Read after mount to avoid a hydration
+  // mismatch; storage can be blocked, so the page must work without it.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(SONG_PICKED_STORAGE_KEY);
+      if (raw) {
+        setPicked(JSON.parse(raw) as PickedSong);
+        setLimitReached(true);
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   useEffect(() => {
     const q = query.trim();
@@ -66,15 +85,29 @@ export default function SongRequest() {
         setComingSoon(true);
         return;
       }
+      if (res.status === 409) {
+        // This browser has already used its one request.
+        setLimitReached(true);
+        return;
+      }
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setAddState((s) => ({ ...s, [track.id]: "error" }));
         return;
       }
-      setAddState((s) => ({
-        ...s,
-        [track.id]: data.reason === "duplicate" ? "duplicate" : "added",
-      }));
+      if (data.reason === "duplicate") {
+        // Already on the playlist, so nothing was added and they can pick again.
+        setAddState((s) => ({ ...s, [track.id]: "duplicate" }));
+        return;
+      }
+      const song: PickedSong = { name: track.name, artists: track.artists };
+      try {
+        localStorage.setItem(SONG_PICKED_STORAGE_KEY, JSON.stringify(song));
+      } catch {
+        /* ignore — the server cookie still enforces the limit */
+      }
+      setPicked(song);
+      setLimitReached(true);
     } catch {
       setAddState((s) => ({ ...s, [track.id]: "error" }));
     }
@@ -86,6 +119,25 @@ export default function SongRequest() {
         <p className="font-display text-3xl text-ink">Song requests open soon</p>
         <p className="mx-auto mt-3 max-w-sm font-body text-lg text-ink-soft">
           We&apos;re still tuning the playlist — do check back nearer the day.
+        </p>
+      </div>
+    );
+  }
+
+  if (limitReached) {
+    return (
+      <div className="rounded-lg border border-sage/50 bg-ivory/60 px-6 py-12 text-center">
+        <p className="font-display text-3xl text-ink">
+          {picked ? "Your song is on the list" : "You've already picked your song"}
+        </p>
+        {picked && (
+          <p className="mx-auto mt-4 max-w-sm font-body text-lg text-ink">
+            {picked.name}
+            <span className="block text-base text-ink-soft">{picked.artists}</span>
+          </p>
+        )}
+        <p className="mx-auto mt-4 max-w-sm font-body text-lg text-ink-soft">
+          It&apos;s one song each — thank you! See you on the dance floor.
         </p>
       </div>
     );
