@@ -37,9 +37,9 @@ export const wedding = {
    * Calendar entries. Europe/London is BST (UTC+1) on 4 June 2027, so 2:00 pm
    * local = 13:00 UTC. The timed entries below end at midnight (00:00 on the 5th).
    *
-   * The SAVE THE DATE entry (the button in the hero) is deliberately **all-day**:
-   * it's shown before anyone has looked up their name, so it must not tell an
-   * evening-only guest to arrive at 2:00 pm. Precise arrival times live in
+   * There is deliberately no calendar entry on the public landing page: it would
+   * be shown before anyone has looked up their name, so it couldn't tell an
+   * evening-only guest from a ceremony guest. Precise arrival times live in
    * `arrivals` below and are only surfaced after the RSVP lookup, where the
    * ceremony flag is known.
    */
@@ -48,11 +48,6 @@ export const wedding = {
     description:
       "We're getting married at The Hospitium, York — we can't wait to celebrate with you!",
     timezone: "Europe/London",
-    /** All-day: DTEND / Google's end date is EXCLUSIVE, hence the 5th. */
-    allDayStart: "20270604",
-    allDayEndExclusive: "20270605",
-    /** Path to the downloadable all-day .ics in /public. */
-    icsHref: "/katie-and-matty-wedding.ics",
   },
   /**
    * EDIT ME — what each kind of guest is invited to, and when to arrive.
@@ -127,40 +122,6 @@ export function multiStopMapHref(places: readonly string[]): string {
 }
 
 export type CalendarTargets = { google: string; outlook: string; ics: string };
-
-/**
- * Save-the-Date links: an **all-day** entry for 4 June. Used by the hero button,
- * which is shown before we know whether someone is a day or evening guest, so it
- * deliberately carries no start time.
- */
-export const calendarLinks: CalendarTargets = {
-  google: (() => {
-    const c = wedding.calendar;
-    const p = new URLSearchParams({
-      action: "TEMPLATE",
-      text: c.title,
-      // All-day events use plain dates; the end date is exclusive.
-      dates: `${c.allDayStart}/${c.allDayEndExclusive}`,
-      details: c.description,
-      location: wedding.address.full,
-    });
-    return `https://calendar.google.com/calendar/render?${p.toString()}`;
-  })(),
-  outlook: (() => {
-    const c = wedding.calendar;
-    const p = new URLSearchParams({
-      rru: "addevent",
-      allday: "true",
-      subject: c.title,
-      startdt: "2027-06-04",
-      enddt: "2027-06-05",
-      location: wedding.address.full,
-      body: c.description,
-    });
-    return `https://outlook.live.com/calendar/0/action/compose?${p.toString()}`;
-  })(),
-  ics: wedding.calendar.icsHref,
-};
 
 /**
  * Timed calendar links for one kind of guest ("ceremony" or "evening"). Only

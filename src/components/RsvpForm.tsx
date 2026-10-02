@@ -44,7 +44,7 @@ function ArrivalPanel({ members }: { members: GuestMember[] }) {
               </p>
               <p className="mt-1 font-body text-ink-soft">{a.blurb}</p>
               {mixed && (
-                <p className="mt-1 font-body text-sm text-sage">
+                <p className="mt-1 break-words font-body text-sm text-sage">
                   For {who.map((m) => m.name.trim()).join(" & ")}
                 </p>
               )}
@@ -200,7 +200,7 @@ export default function RsvpForm() {
 
   if (comingSoon) {
     return (
-      <div className="rounded-lg border border-sage/50 bg-ivory/60 px-6 py-12 text-center">
+      <div className="rounded-lg border border-sage/50 bg-ivory px-6 py-12 text-center">
         <p className="font-display text-3xl text-ink">RSVPs open soon</p>
         <p className="mx-auto mt-3 max-w-sm font-body text-lg text-ink-soft">
           We&apos;re just finishing the guest list — do check back shortly.
@@ -212,7 +212,7 @@ export default function RsvpForm() {
   if (stage === "done") {
     // Timings are shown at the name-selection stage, not here.
     return (
-      <div className="rounded-lg border border-sage/50 bg-ivory/60 px-6 py-12 text-center">
+      <div className="rounded-lg border border-sage/50 bg-ivory px-6 py-12 text-center">
         <p className="font-display text-3xl text-ink sm:text-4xl">With thanks</p>
         <p className="mx-auto mt-3 max-w-sm font-body text-lg text-ink-soft">{successMsg}</p>
         <p className="mt-6 font-body text-lg text-ink-soft">
@@ -227,7 +227,7 @@ export default function RsvpForm() {
   }
 
   return (
-    <div className="text-left">
+    <div className="text-center">
       {/* Honeypot */}
       <div aria-hidden="true" className="absolute left-[-9999px] h-0 w-0 overflow-hidden">
         <label>
@@ -264,7 +264,7 @@ export default function RsvpForm() {
             {searching && <p className="font-body text-ink-soft">Searching…</p>}
 
             {matches.length > 0 && (
-              <ul className="overflow-hidden rounded-lg border border-sage/40 bg-ivory/60">
+              <ul className="overflow-hidden rounded-lg border border-sage/40 bg-ivory">
                 {matches.map((name) => (
                   <li key={name} className="border-b border-sage/20 last:border-b-0">
                     <button type="button" className="suggestion-btn" onClick={() => selectName(name)}>
@@ -299,7 +299,7 @@ export default function RsvpForm() {
             ← Search again
           </button>
 
-          <p className="mt-5 font-body text-lg text-ink-soft">
+          <p className="mt-5 break-words font-body text-lg text-ink-soft">
             Lovely to see you, {anchorName.trim()}.
           </p>
 
@@ -313,19 +313,25 @@ export default function RsvpForm() {
             {members.map((m) => {
               const yes = !!attending[m.name];
               return (
+                // Name above, buttons below — stacked and centred at every width, so a
+                // long name or a narrow phone can never squeeze the two buttons.
                 <li
                   key={m.name}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-sage/40 bg-ivory/50 p-4"
+                  className="flex flex-col items-center gap-3 rounded-lg border border-sage/40 bg-ivory p-4"
                 >
-                  <div className="min-w-0">
-                    <p className="font-display text-xl text-ink">{m.name.trim()}</p>
-                    <p className="label text-[0.55rem] text-sage">
+                  <div className="min-w-0 max-w-full">
+                    <p className="break-words font-display text-xl text-ink">{m.name.trim()}</p>
+                    <p className="label mt-1 text-[0.55rem] text-sage">
                       {m.ceremonyGuest
                         ? wedding.arrivals.ceremony.label
                         : wedding.arrivals.evening.label}
                     </p>
                   </div>
-                  <div className="flex gap-2" role="group" aria-label={`Attendance for ${m.name.trim()}`}>
+                  <div
+                    className="flex flex-wrap justify-center gap-2"
+                    role="group"
+                    aria-label={`Attendance for ${m.name.trim()}`}
+                  >
                     <button
                       type="button"
                       aria-pressed={yes}

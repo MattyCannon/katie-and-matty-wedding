@@ -31,7 +31,7 @@ It gets the framing from (2) and the resolution from (1):
   e. Key the white paper to transparency with a soft alpha ramp, un-blend it so
      pale petals keep their real colour, trim, downscale, save as .webp.
 
-Output: `public/wildflowers/scatter/*.webp`, placed by `WildflowerScatter.tsx`.
+Output: `public/wildflowers/scatter/*.webp`, placed by `WildflowerBorder.tsx`.
 
 Requires: pillow, numpy, opencv-python.
 """
@@ -199,7 +199,7 @@ def main() -> int:
             + "\n  ".join(f"{n} ({s:.3f})" for n, s in weak)
         )
 
-    print("\nMotif keys for WildflowerScatter.tsx:")
+    print("\nMotif keys for WildflowerBorder.tsx:")
     for name, (w, h), _, _ in rows:
         print(f'  "{name}": [{w}, {h}],')
     return 0

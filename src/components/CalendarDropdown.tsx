@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { calendarLinks, type CalendarTargets } from "@/lib/wedding";
+import type { CalendarTargets } from "@/lib/wedding";
 
 type Option = {
   label: string;
@@ -27,18 +27,17 @@ function toOptions(targets: CalendarTargets): Option[] {
 
 /**
  * Single "Add to Calendar" button that opens a small menu of calendar options.
- * Defaults to the all-day Save the Date entry; pass `sections` for timed
- * entries (e.g. per invite type on the RSVP page).
+ * Pass one `sections` entry per invite type (used on the RSVP page, where the
+ * guest's ceremony flag — and so their arrival time — is known).
  */
 export default function CalendarDropdown({
   sections,
   label = "Add to Calendar",
 }: {
-  sections?: CalendarSection[];
+  sections: CalendarSection[];
   label?: string;
-} = {}) {
-  const menu: CalendarSection[] = sections ?? [{ targets: calendarLinks }];
-  return <Dropdown menu={menu} label={label} />;
+}) {
+  return <Dropdown menu={sections} label={label} />;
 }
 
 function Dropdown({ menu, label }: { menu: CalendarSection[]; label: string }) {

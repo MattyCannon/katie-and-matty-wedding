@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Footer from "@/components/Footer";
 import RsvpForm from "@/components/RsvpForm";
-import { WildflowerScatter } from "@/components/botanical/WildflowerScatter";
+import { WildflowerBorder } from "@/components/botanical/WildflowerBorder";
 import { Divider } from "@/components/botanical/Divider";
 import { wedding } from "@/lib/wedding";
 
@@ -12,12 +12,16 @@ export const metadata: Metadata = {
 
 export default function RsvpPage() {
   return (
-    <div className="relative isolate min-h-screen overflow-hidden">
-      <WildflowerScatter variant="quiet" />
+    // `min-h-dvh` (not `min-h-screen`): on phones `100vh` includes the browser
+    // toolbar, which would push the centred block off-centre.
+    <div className="relative isolate min-h-dvh overflow-hidden">
+      <WildflowerBorder />
 
-      <div className="flex min-h-screen flex-col">
-        <main className="flex-1 px-6 py-8">
-          <div className="mx-auto max-w-xl">
+      <div className="flex min-h-dvh flex-col">
+        {/* The whole block is centred in the space above the footer. */}
+        {/* Extra top room on phones keeps the heading clear of the corner stems. */}
+        <main className="flex flex-1 items-center justify-center px-8 pb-10 pt-28 sm:py-10">
+          <div className="w-full max-w-xl">
             <div className="text-center">
               <p className="label text-[0.72rem] text-botanical-red">Répondez s&apos;il vous plaît</p>
               <h1 className="mt-4 font-display text-5xl text-ink sm:text-6xl">RSVP</h1>

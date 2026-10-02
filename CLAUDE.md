@@ -70,6 +70,25 @@ Guests find their name, then RSVP for their whole party (per person). It's
   spaces). Duplicate names across groups resolve to the first match.
 - UI assumption to confirm: the ceremony flag shows as "Ceremony & evening" vs
   "Evening" — adjust the wording in `RsvpForm.tsx` if that's not the intended meaning.
+- **Layout rules (phones are the main audience — keep these when editing):**
+  - The whole block is **centred** (text and block): `main` is a flex centre in the
+    space above the footer, and the form root is `text-center`. The page uses
+    `min-h-dvh`, not `min-h-screen`, so the phone browser toolbar doesn't skew it.
+  - Each party row **stacks** — name above, Coming / Can't make it below, both
+    centred and `flex-wrap` — so a long name or a 320px screen can never squeeze
+    the buttons. Names use `break-words`.
+  - Cards, inputs and suggestion lists use an **opaque** `bg-ivory` (not `/60`),
+    so border flowers can't show through behind text.
+  - `main` has `px-8` and extra top padding on phones (`pt-28`) so text clears the
+    border's side stems and the top corner sweeps; the shared `Footer` has `px-8
+    pb-32` on phones for the same reason. The border's side stems are also
+    shortened on phones (`--rail`, see WildflowerBorder).
+  - Tested at 320, 360, 375, 390, 414, 768, 1024 and 1440 wide, across the
+    search / results / party / error / thank-you states, with long names and a
+    five-person mixed day+evening party: no text-on-text overlap, nothing
+    off-screen, no sideways scroll, no wrapped buttons. Re-test at 320 and 375
+    after any change here. (Handy trick: stub `window.fetch` for `/api/guests/*`
+    and `/api/rsvp/group` in the browser console to test without touching the sheet.)
 
 ## Spotify song requests (built — needs creds to go live)
 
@@ -77,6 +96,13 @@ Guests find their name, then RSVP for their whole party (per person). It's
   results → "Add"). Calls route handlers `src/app/api/spotify/{search,add}/route.ts`.
 - Server client: `src/lib/spotify.ts`. Uses the **owner's refresh token** for both
   search and add (guests never authorize). Adds skip **duplicates**. Honeypot on add.
+- **One song per guest.** Guests don't log in, so this is per browser: the add route
+  sets an httpOnly cookie (`song_requested`, ~1 year; `src/lib/songLimit.ts`) after a
+  song is genuinely added, and returns **409 `limit_reached`** for any later add. A
+  duplicate adds nothing, so it does *not* use up the request. The client swaps the
+  search for a thank-you panel and remembers the pick in localStorage (display only —
+  the cookie enforces). Clearing cookies / another browser bypasses it; that's an
+  accepted trade-off for a light-hearted feature.
 - Env vars (`.env.local`, git-ignored; mirror in Vercel) — **never commit**:
   `SPOTIFY_CLIENT_ID`, `SPOTIFY_CLIENT_SECRET`, `SPOTIFY_REFRESH_TOKEN`,
   `SPOTIFY_PLAYLIST_ID`. Get the refresh token via `scripts/spotify-auth.mjs`.
@@ -142,50 +168,61 @@ reintroduce free-floating motifs.
   pale petal keeps its real colour.
   - To add or re-frame a motif: drop a new hand-cut PNG into
     `imgs/wildflowers-source/`, re-run the script, and paste the `MOTIFS` block
-    it prints into `WildflowerScatter.tsx`. The filename becomes the motif key.
+    it prints into `WildflowerBorder.tsx`. The filename becomes the motif key.
   - The script flags any weak template match (< 0.75) to check by eye.
 - `public/wildflowers/divider-bloom.webp` is the older, separate cut-out used by
   `Divider` (a single bloom between sage hairlines). Still in use, unchanged.
-- **`WildflowerScatter`** plants them, each motif reused two or three times at
-  a different length, angle and mirroring — that repetition is what keeps the
-  border from reading as a pattern. `variant` picks the fullness: `hero` (24
-  stems), `section` (venue), `quiet` (long text pages, `/rsvp`, `/songs`) —
-  plus a deterministic confetti of tiny colour specks for the invite's
-  seed-paper texture (no `Math.random`, so no hydration mismatch).
-  **Positions are the EDIT-ME bit**, in `LAYOUTS`, grouped by edge.
-  - Mount it as the first child of a **`relative`** section; it sits at
-    `-z-10`, behind in-flow content. It needs *some* ancestor stacking context
-    or it vanishes behind the body background — on the landing page that's the
-    existing `relative z-10` wrapper in `page.tsx`; `/rsvp` and `/songs` carry
-    `isolate` on their root. Don't put `isolate` on the sections themselves:
-    that would trap the Add to Calendar dropdown inside the hero.
-  - `x`/`y`/`fromBottom` are the **root** of the stem — the point it grows out
-    of — not the centre of the picture. The component pivots each motif about
-    the foot of its stem (`transform-origin: 50% 100%` plus a matching
-    translate), so a stem swings out from its root like a real one instead of
-    orbiting its own bounding box. Keep roots just off-page (`x: -1`, `y: -2`,
-    `fromBottom: -2`).
+- **`WildflowerBorder`** plants them as **one border around the whole page**:
+  a fuller cluster across the very top, a fuller cluster across the very
+  bottom (beneath the footer), and a continuous run of stems down both sides.
+  **No flowers sit between sections** — that was the old per-section system and
+  is deliberately gone. Each motif is reused many times at a different length,
+  angle and mirroring — that repetition is what keeps the border from reading
+  as a pattern. It also draws a deterministic confetti of tiny colour specks
+  (the invite's seed-paper texture), kept to the border strips only (no
+  `Math.random`, so no hydration mismatch). **Positions are the EDIT-ME bit**:
+  `TOP`, `BOTTOM`, and the side modules `RAIL_A` / `RAIL_B`.
+  - **Why modules.** Page height isn't known at render time (viewport,
+    accordion panels), so side stems aren't placed by % of page height — that
+    would stretch them apart on a tall page. The side run is a hand-arranged
+    module (`MODULE_H` px tall) repeated down the page, alternating A/B so it
+    doesn't read as a stamp. `MODULE_COUNT` modules are rendered — far more
+    than any page needs; the layer clips at the real page height and images
+    below it never load.
+  - Render it **once per page**, as the first child of the page's outermost
+    wrapper (`page.tsx`, `rsvp/page.tsx`, `songs/page.tsx`). It sits at
+    `-z-10`, behind in-flow content, so it needs an ancestor stacking context or
+    it vanishes behind the body background: on the landing page that's the
+    `relative z-10` wrapper; `/rsvp` and `/songs` carry `relative isolate` on
+    their root. **Don't** mount it per section — that reintroduces flowers in
+    the gaps between sections.
+  - `x` is the **root** of the stem — the point it grows out of — as a % of page
+    width; `top` / `bottom` are the root's px from that edge. The component
+    pivots each motif about the foot of its stem (`transform-origin: 50% 100%`
+    plus a matching translate), so a stem swings out from its root like a real
+    one. Keep roots just off-page (`x: -1`/`101`, `top: -2`, `bottom: -2`).
   - `grow` is the direction it grows, in degrees clockwise from straight up.
     Use the `FROM_*` constants — named for the edge the stem is rooted on, so
     `FROM_LEFT` grows rightwards — plus a few degrees of lean
-    (`FROM_LEFT + 12`) so the border doesn't look combed. Every stem should end
-    up pointing roughly at the middle of the screen.
-  - `size` is the stem's **length**, which is also how far it reaches inward —
-    so it's the number to watch. Side stems can be long (the type column
-    doesn't begin until `x` 28%); stems rooted on the bottom edge grow *up*
-    towards the Save the Date button and must stay under ~72px in the middle
-    third. Top-edge stems hang down, so keep them out of `x` 28–72 (and mind
-    the `lg`-only eyebrow line, roughly `x` 38–62).
-  - `wideOnly` drops a stem below `sm`, where the type fills the width. `--wf`
-    on the layer scales the whole border down on narrower screens.
+    (`FROM_LEFT + 12`) so the border doesn't look combed.
+  - `size` is the stem's **length**, which is also how far it reaches inward.
+    Keep side stems under ~115px so they hug the edge; bottom-edge stems grow
+    *up*, so keep the middle ones under ~72px or they reach the footer text
+    (`Footer` has extra bottom padding for this); top-edge stems hang down, so
+    keep them out of `x` 28–72 where the hero type sits.
+  - `wideOnly` drops a stem below `sm`. `--wf` on the layer scales every length
+    and gap down on narrower screens; `--rail` additionally shortens the **side
+    run only** on phones (0.55 below `sm`, 1 from `sm`), because centred lines on
+    a phone run nearly edge to edge and a long side stem would reach into them.
+    The top and bottom clusters are not shortened.
 - All decoration is `aria-hidden` + `pointer-events-none`, with `alt=""`.
-- Two earlier systems have been **removed** — don't reintroduce either: the
-  hand-drawn SVG flowers (`Botanicals.tsx`), and the four tall corner stems
+- Earlier systems have been **removed** — don't reintroduce them: the
+  hand-drawn SVG flowers (`Botanicals.tsx`); the four tall corner stems
   (`WildflowerCorner`, with `corner-blue-flax` / `corner-meadow-sprig`), which
-  pinned one repeated stem to each corner and read as a printed frame.
-- Note the component is still named `WildflowerScatter` from an earlier draft
-  that strewed motifs freely across the page; it now plants them rooted at the
-  edges. Rename it if it starts to mislead — it's imported in five places.
+  pinned one repeated stem to each corner; and the per-section
+  `WildflowerScatter` (variants `hero` / `section` / `quiet`), which put flowers
+  between sections. The current border is *varied* stems rooted on the edges —
+  not one repeated stem.
 
 ## Site map / roadmap
 
@@ -194,12 +231,11 @@ Navigation is by scrolling, plus the RSVP button.
 
 Landing-page sections, top to bottom:
 
-1. Hero — names + date/venue (eyebrow: "Together with their friends & family"),
-   with **Save the Date + Add to Calendar nested inside it**, tight beneath the
-   date line. Full viewport (`min-h-dvh`), **scroll-snap page**, content aligned
-   to the **top**. `AddToCalendar` is rendered by `Hero.tsx`, not by `page.tsx`,
-   and carries no vertical padding of its own — spacing comes from the
-   `className` Hero passes it.
+1. Hero — names + date/venue (eyebrow: "Together with their friends & family").
+   Full viewport (`min-h-dvh`), **scroll-snap page**, content **centred**
+   horizontally and vertically. There is **no Save the Date heading and no Add to
+   Calendar button** on the landing page — they were removed on purpose (see the
+   day-vs-evening note below). The eyebrow only shows from `lg` up.
 2. The Venue (`#venue`) — **Google Maps embed** (no API key) + "Get directions".
    Full viewport, **scroll-snap page**.
 3. Useful Information (`#useful-info`) — **accordion**: Travel, Where to Stay,
@@ -221,9 +257,11 @@ is reachable only from the RSVP success screen.
   Two arrival types live in `wedding.arrivals` (EDIT-ME): `ceremony` (arrive
   1:30 pm, ceremony 2:00 pm) and `evening` (from 7:00 pm), each with its own
   wording and calendar times.
-  - The hero's **Save the Date** button is an **all-day** entry for 4 June, on
-    purpose: it's shown before the name lookup, so it must not tell an
-    evening-only guest to arrive at 2:00 pm.
+  - There is deliberately **no calendar entry on the public landing page** (an
+    all-day "Save the Date" button used to live in the hero and was removed,
+    along with `calendarLinks` and the all-day `.ics`): the page is shown before
+    the name lookup, so it can't tell an evening-only guest from a ceremony
+    guest. Calendar entries only appear after the lookup.
   - Precise timings appear **as soon as a guest picks their name** — the
     `ArrivalPanel` at the top of the group stage in `RsvpForm.tsx`, above the
     coming / can't-make-it toggles. Not on the success screen (people need the
@@ -231,10 +269,11 @@ is reachable only from the RSVP success screen.
     public, since it's behind the name lookup. Mixed parties get one line per
     type, labelled with who it applies to, and a **single** Add to Calendar
     button whose menu is grouped by type (`CalendarDropdown` takes `sections`).
-  - Three `.ics` files in `public/`: `katie-and-matty-wedding.ics` (all-day),
-    `-ceremony.ics` (13:30–23:00 BST), `-evening.ics` (19:00–23:00 BST). Times
-    are stored as UTC (`Z`), i.e. one hour behind the BST local time. Update all
-    three plus `wedding.ts` if the date or times change.
+  - Two `.ics` files in `public/`: `katie-and-matty-ceremony.ics` (13:30–00:00
+    BST) and `katie-and-matty-evening.ics` (19:00–00:00 BST). Both end at
+    **midnight**, i.e. 00:00 on 5 June (`DTEND` 23:00Z on the 4th). Times are
+    stored as UTC (`Z`), i.e. one hour behind the BST local time. Update both
+    plus `wedding.ts` if the date or times change.
 - **Useful Information links** → `src/lib/usefulInfo.ts` (one entry per accordion
   panel; each item has an optional `href`). Has an EDIT-ME header.
 - **Map** uses Google's no-key `…/maps?q=…&output=embed`. Renders in real browsers;
@@ -247,7 +286,7 @@ is reachable only from the RSVP success screen.
 src/
 ├── app/
 │   ├── layout.tsx      # fonts, <html>, metadata
-│   ├── page.tsx        # landing page composition (each section plants its own flowers)
+│   ├── page.tsx        # landing page composition; mounts the one WildflowerBorder
 │   └── globals.css     # Tailwind layers, base styles, .label/.btn/.acc utilities
 ├── app/api/spotify/    # song search + add route handlers
 ├── app/api/guests/     # guest-list search + group resolve
@@ -255,16 +294,15 @@ src/
 ├── app/rsvp/           # RSVP page (guest-list lookup)
 ├── app/songs/          # "Request a Song" page
 ├── components/
-│   ├── Hero.tsx             # full-viewport snap page, top-aligned; renders AddToCalendar
-│   ├── CalendarDropdown.tsx # "Add to Calendar" menu (client)
-│   ├── AddToCalendar.tsx    # Save the Date heading + button (nested in Hero)
+│   ├── Hero.tsx             # full-viewport snap page, content centred
+│   ├── CalendarDropdown.tsx # "Add to Calendar" menu (client; used on the RSVP page)
 │   ├── VenueMap.tsx         # Google Maps embed + directions (snap page)
 │   ├── UsefulInfo.tsx       # <details> accordion
 │   ├── RsvpForm.tsx         # RSVP guest-lookup client form (search → group → done)
 │   ├── SongRequest.tsx      # Spotify search/add client component
 │   ├── Footer.tsx
 │   └── botanical/
-│       ├── WildflowerScatter.tsx # stems rooted at the page edges; EDIT-ME layouts
+│       ├── WildflowerBorder.tsx  # ONE border per page: top, bottom, both sides; EDIT-ME
 │       └── Divider.tsx           # single bloom between sage hairlines
 └── lib/
     ├── wedding.ts      # event details + calendar/map link builders
@@ -276,19 +314,18 @@ src/
 
 scripts/
 ├── spotify-auth.mjs     # one-time: obtain the Spotify refresh token
-└── cut-wildflowers.py   # re-cut the scatter motifs from the stock sheet
+└── cut-wildflowers.py   # re-cut the border motifs from the stock sheet
 
 imgs/                          # source artwork (git-ignored, local only)
 ├── AdobeStock_1554878676.jpeg # the licensed sheet — supplies the resolution
 └── wildflowers-source/        # the couple's hand-cut motifs — supply the framing
 
 public/
-├── katie-and-matty-wedding.ics   # all-day Save the Date
-├── katie-and-matty-ceremony.ics  # 13:30–23:00 BST (ceremony guests)
-├── katie-and-matty-evening.ics   # 19:00–23:00 BST (evening guests)
+├── katie-and-matty-ceremony.ics  # 13:30–00:00 BST (ceremony guests)
+├── katie-and-matty-evening.ics   # 19:00–00:00 BST (evening guests)
 └── wildflowers/
     ├── divider-bloom.webp        # single bloom used by Divider
-    └── scatter/                  # 11 keyed motifs used by WildflowerScatter
+    └── scatter/                  # 11 keyed motifs used by WildflowerBorder
 ```
 
 Tip: `npm run dev` runs the site at http://localhost:3000. (There's a Claude Code

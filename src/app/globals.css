@@ -9,7 +9,7 @@
 
   html {
     scroll-behavior: smooth;
-    /* Hero -> Save the Date -> Venue snap in sequence; sections after Venue
+    /* Hero -> Venue snap in sequence; sections after Venue
        (Useful Info, RSVP, Footer) have no scroll-snap-align, so scrolling
        past Venue returns to normal, un-snapped scrolling. */
     scroll-snap-type: y mandatory;
@@ -113,7 +113,7 @@
     font-size: 0.66rem;
   }
   .field-input {
-    @apply w-full rounded-md border border-sage/60 bg-ivory/60 px-4 py-3 font-body text-lg text-ink transition-colors duration-200;
+    @apply w-full rounded-md border border-sage/60 bg-ivory px-4 py-3 font-body text-lg text-ink transition-colors duration-200;
   }
   .field-input::placeholder {
     @apply text-ink-soft/60;
@@ -130,7 +130,7 @@
 
   /* Guest-name autocomplete suggestion row. */
   .suggestion-btn {
-    @apply block w-full px-4 py-3 text-left font-body text-lg text-ink transition-colors duration-150;
+    @apply block w-full px-4 py-3 text-center font-body text-lg text-ink transition-colors duration-150;
   }
   .suggestion-btn:hover,
   .suggestion-btn:focus-visible {

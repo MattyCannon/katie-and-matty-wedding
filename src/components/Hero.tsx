@@ -1,17 +1,11 @@
 import { wedding } from "@/lib/wedding";
-import AddToCalendar from "@/components/AddToCalendar";
-import { WildflowerScatter } from "@/components/botanical/WildflowerScatter";
 
 export default function Hero() {
   return (
-    // No `isolate` here on purpose: it would trap the Add to Calendar
-    // dropdown's z-index inside the hero, so on a short viewport the open menu
-    // would be painted under the venue section below. The scatter's `-z-10`
-    // resolves against the landing page's `relative z-10` wrapper instead.
-    <section className="relative flex min-h-dvh snap-start flex-col items-center justify-start px-6 pb-16 pt-12 text-center sm:pt-16">
-      {/* Wildflowers strewn across the first screen, as on the paper invite. */}
-      <WildflowerScatter variant="hero" />
-
+    // The wildflower border is drawn once for the whole page (see
+    // `WildflowerBorder`), not per section. Everything here is centred in the
+    // first screen, horizontally and vertically.
+    <section className="relative flex min-h-dvh snap-start flex-col items-center justify-center px-6 py-16 text-center">
       <p className="label hidden text-[0.7rem] text-botanical-red lg:block">
         Together with their friends &amp; family
       </p>
@@ -46,9 +40,6 @@ export default function Hero() {
           {wedding.venue}, {wedding.location.city}
         </span>
       </div>
-
-      {/* Save the Date sits tight beneath the date line, inside the first screen. */}
-      <AddToCalendar className="mt-10 sm:mt-12" />
     </section>
   );
 }
