@@ -209,8 +209,7 @@ reintroduce free-floating motifs.
     Keep side stems under ~115px so they hug the edge; bottom-edge stems grow
     *up*, so keep the middle ones under ~72px or they reach the footer text
     (`Footer` has extra bottom padding for this); top-edge stems hang down, so
-    keep them out of `x` 28–72 where the hero type and the **header RSVP button**
-    (top centre of the landing page) sit.
+    keep them out of `x` 28–72 where the hero type sits.
   - `wideOnly` drops a stem below `sm`. `--wf` on the layer scales every length
     and gap down on narrower screens; `--rail` additionally shortens the **side
     run only** below `lg` (0.55 on phones, 0.7 on tablets, 1 from `lg`), because
@@ -230,29 +229,31 @@ reintroduce free-floating motifs.
 
 ## Site map / roadmap
 
-There is **no nav bar** (it was removed, along with `navLinks`). The only
-navigation is a slim **header** at the very top of the landing page holding a
-single centred **RSVP button** → `/rsvp`, plus scrolling. The header is
-`absolute` (so the hero keeps its full-viewport height and the button scrolls
-away with the page), and the hero has symmetrical `py-24` so its content clears
-it. The border's top cluster keeps clear of the top centre for it.
+There is **no nav bar and no header** (both were removed, along with
+`navLinks`). The only navigation is the **RSVP button** inside the hero, plus
+scrolling. (It spent a while as a header at the top of the page and was moved
+back into the hero on purpose — don't re-add a header.)
 
 Landing-page sections, top to bottom:
 
-0. Header — centred RSVP button (see above). Only on the landing page.
-1. Hero — names + date/venue (eyebrow: "Together with their friends & family").
-   Full viewport (`min-h-dvh`), **scroll-snap page**, content **centred**
-   horizontally and vertically. There is **no Save the Date heading and no Add to
-   Calendar button** on the landing page — they were removed on purpose (see the
-   day-vs-evening note below). The eyebrow only shows from `lg` up.
+1. Hero — names, date/venue, then the **RSVP button** → `/rsvp`, tight beneath
+   the venue line (eyebrow above the names: "Together with their friends &
+   family"). The whole block — eyebrow, names, date/venue and button — is **one
+   group centred** horizontally and vertically in the first screen
+   (`min-h-dvh`, **scroll-snap page**, symmetrical `py-16`; verified to be
+   exactly centred, e.g. 224px above and below at 375x812). The eyebrow only
+   shows from `lg` up, and the gap above the names is only applied then
+   (`lg:mt-8`) so the block stays centred on phones. There is **no Save the Date
+   heading and no Add to Calendar button** on the landing page — they were
+   removed on purpose (see the day-vs-evening note below).
 2. The Venue (`#venue`) — **Google Maps embed** (no API key) + "Get directions".
    Full viewport, **scroll-snap page**.
 3. Useful Information (`#useful-info`) — **accordion**: Travel, Where to Stay,
    Local Recommendations. On narrow phones the section titles shrink slightly
    and `.btn` tightens its tracking so nothing wraps into a cramped two-liner.
 4. Footer — `Footer` takes `divider` (default on): the landing page passes
-   `divider={false}` (the bloom divider used to sit beneath the old RSVP button),
-   while `/rsvp` and `/songs` keep it. The footer line is three `nowrap` parts
+   `divider={false}` (the page ends on the Gifts note, which has its own bloom
+   divider), while `/rsvp` and `/songs` keep it. The footer line is three `nowrap` parts
    (names / date / place) that **stack on phones and sit in one row from `md`**,
    so the date can never break across lines.
 

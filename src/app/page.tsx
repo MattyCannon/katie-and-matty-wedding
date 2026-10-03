@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Hero from "@/components/Hero";
 import VenueMap from "@/components/VenueMap";
 import UsefulInfo from "@/components/UsefulInfo";
@@ -15,30 +14,14 @@ export default function Home() {
         {/* One border around the whole page: top, both sides, bottom. */}
         <WildflowerBorder />
 
-        {/*
-          The RSVP button lives in a slim header at the very top, centred. It's
-          absolutely positioned so the hero keeps its full-viewport height; the
-          hero's top padding leaves room for it. The border's top cluster keeps
-          clear of the centre (its top-edge stems hang from the outer fifths).
-        */}
-        <header className="absolute inset-x-0 top-0 z-20 flex justify-center px-6 pt-6 sm:pt-8">
-          <nav aria-label="Primary">
-            <Link
-              href="/rsvp"
-              className="inline-flex items-center justify-center rounded-full border border-botanical-red bg-botanical-red px-9 py-2.5 font-display text-[0.8rem] font-semibold uppercase tracking-[0.18em] text-ivory transition-colors duration-200 hover:bg-botanical-red-deep sm:px-10 sm:py-3"
-            >
-              RSVP
-            </Link>
-          </nav>
-        </header>
-
         <main className="flex-1">
+          {/* The RSVP button lives inside the hero, beneath the date and venue. */}
           <Hero />
           <VenueMap />
           <UsefulInfo />
         </main>
 
-        {/* No divider here: the RSVP button it used to sit beneath has moved to the header. */}
+        {/* No divider here: the landing page ends on the Gifts note, which has its own. */}
         <Footer divider={false} />
       </div>
     </div>
